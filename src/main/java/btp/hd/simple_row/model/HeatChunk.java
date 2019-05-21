@@ -22,7 +22,7 @@ public abstract class HeatChunk extends TempChunk {
 
         for (int i = 0; i < cond.length; i++) {
             for (int j = 0; j < cond[0].length; j++) {
-                str.append(String.format("%8.3f (%1.3f) ", getTemp()[i][j], cond[i][j]));
+                str.append(String.format("%11.4f (%1.3f) ", getTemp()[i][j], cond[i][j]));
             }
 
             str.append('\n');

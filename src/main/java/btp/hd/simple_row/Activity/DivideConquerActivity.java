@@ -2,6 +2,7 @@ package btp.hd.simple_row.Activity;
 
 import btp.hd.simple_row.model.CylinderSlice;
 import btp.hd.simple_row.model.TempResult;
+import btp.hd.simple_row.model.event.LinkEvent;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
@@ -9,7 +10,9 @@ import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.Timer;
+
 import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,17 +23,25 @@ public class DivideConquerActivity extends Activity {
     private static final boolean EXPECT_EVENTS = true;
 
     private final ActivityIdentifier parent;
+    private final ActivityIdentifier topLink;
+    private final ActivityIdentifier botLink;
     private final CylinderSlice slice;
     private final int threshold;
 
     private TempResult result;
-    private Timer timer;
-    private int timerId;
 
-    public DivideConquerActivity(ActivityIdentifier parent, CylinderSlice slice, int threshold) {
+    public DivideConquerActivity(
+            ActivityIdentifier parent,
+            ActivityIdentifier topLink,
+            ActivityIdentifier botLink,
+            CylinderSlice slice,
+            int threshold
+    ) {
         super(new Context(LABEL), EXPECT_EVENTS);
 
         this.parent = parent;
+        this.topLink = topLink;
+        this.botLink = botLink;
         this.slice = slice;
         this.threshold = threshold;
 
@@ -45,27 +56,26 @@ public class DivideConquerActivity extends Activity {
             return FINISH;
         } else {
             log.debug("Slice with height {} is too big. Will be split into smaller slices",
-                slice.height());
+                    slice.height());
 
             result = TempResult.of(slice);
 
-            String executor = cons.identifier().toString();
-            timer = cons.getTimer("java", executor, "stencil operation");
-            timerId = timer.start();
-
             int half = (int) Math.ceil((double) slice.height() / 2);
-            submit(cons, slice, 0, half + 1);
-            submit(cons, slice, half - 1, slice.height());
+            LinkActivity linkActivity = new LinkActivity();
+
+            sumbit(cons, linkActivity);
+            submit(cons, slice, topLink, linkActivity.identifier(), 0, half + 1);
+            submit(cons, slice, linkActivity.identifier(), botLink, half - 1, slice.height());
 
             return SUSPEND;
         }
     }
 
-    private void submit(Constellation cons, CylinderSlice slice, int begin, int end) {
+    private void submit(Constellation cons, CylinderSlice slice, ActivityIdentifier top, ActivityIdentifier bot, int begin, int end) {
         CylinderSlice sliceToSubmit = CylinderSlice.of(slice, begin, end);
 
         try {
-            cons.submit(new DivideConquerActivity(identifier(), sliceToSubmit, threshold));
+            cons.submit(new DivideConquerActivity(identifier(), top, bot, sliceToSubmit, threshold));
         } catch (NoSuitableExecutorException e) {
             e.printStackTrace();
         }
@@ -74,6 +84,14 @@ public class DivideConquerActivity extends Activity {
     private void submit(Constellation cons, CylinderSlice slice) {
         try {
             cons.submit(new StencilOperationActivity(parent, slice));
+        } catch (NoSuitableExecutorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sumbit(Constellation cons, LinkActivity linkActivity) {
+        try {
+            cons.submit(linkActivity);
         } catch (NoSuitableExecutorException e) {
             e.printStackTrace();
         }
@@ -89,9 +107,6 @@ public class DivideConquerActivity extends Activity {
         result.add((TempResult) event.getData());
 
         if (result.finished()) {
-            timer.stop(timerId);
-            log.info("Performed  a stencil operation of size {} x {} in {} ms",
-                slice.height(), slice.width(), timer.totalTimeVal() / 1000);
             return FINISH;
         }
 

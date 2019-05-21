@@ -11,10 +11,12 @@ public class CylinderSlice extends HeatChunk {
     private static final double DIAGONAL_CONST = 0.25 / (Math.sqrt(2) + 1.0);
 
     private final int parentOffset;
+    private final int iteration;
 
-    private CylinderSlice(int parentOffset, double[][] temp, double[][] cond) {
+    private CylinderSlice(int parentOffset, int iteration, double[][] temp, double[][] cond) {
         super(temp, cond);
         this.parentOffset = parentOffset;
+        this.iteration = iteration;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class CylinderSlice extends HeatChunk {
     }
 
     public static CylinderSlice of(Cylinder parent) {
-        return new CylinderSlice(0, parent.getTemp(), parent.getCond());
+        return new CylinderSlice(0, 1, parent.getTemp(), parent.getCond());
     }
 
     public static CylinderSlice of(CylinderSlice parent, int begin, int end) {
@@ -43,7 +45,7 @@ public class CylinderSlice extends HeatChunk {
             }
         }
 
-        return new CylinderSlice(begin, temp, cond);
+        return new CylinderSlice(begin, parent.getIteration(), temp, cond);
     }
 
     public TempResult result() {
@@ -67,7 +69,7 @@ public class CylinderSlice extends HeatChunk {
             }
         }
 
-        TempResult resultChunk = TempResult.of(result, parentOffset, maxDifference);
+        TempResult resultChunk = TempResult.of(result, parentOffset, iteration, maxDifference);
         return resultChunk;
     }
 

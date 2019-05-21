@@ -21,7 +21,7 @@ public abstract class TempChunk implements java.io.Serializable {
 
         for (int i = 0; i < temp.length; i++) {
             for (int j = 0; j < temp[0].length; j++) {
-                str.append(String.format("%8.3f ", getTemp()[i][j]));
+                str.append(String.format("%11.4f ", getTemp()[i][j]));
             }
 
             str.append('\n');
