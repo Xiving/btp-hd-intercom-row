@@ -17,23 +17,23 @@ function check_env_dir() {
     fi
 }
 
-check_env_dir SIMPLE_ROW_DIR
+check_env_dir INTERCOM_ROW_DIR
 
-BIN_DIR=$SIMPLE_ROW_DIR/bin
+BIN_DIR=$INTERCOM_ROW_DIR/bin
 
 source $BIN_DIR/check_environment_variable.bash
 check_env CONSTELLATION_PORT
 
 source $BIN_DIR/create_class_path.bash
 
-CLASSPATH=$(createClassPath $SIMPLE_ROW_DIR "lib/ipl-support-2.3.1.jar")
+CLASSPATH=$(createClassPath $INTERCOM_ROW_DIR "lib/ipl-support-2.3.1.jar")
 
 exec java -classpath $CLASSPATH \
      -Dgat.adapter.path \
      -Dibis.io.buffer.size=65536 \
      -Dibis.io.conversion.buffer.size=65536 \
      -Dibis.registry.central.server.connect.timeout=300 \
-     -Dlog4j.configuration=file:"$SIMPLE_ROW_DIR"/log4j.properties \
+     -Dlog4j.configuration=file:"$INTERCOM_ROW_DIR"/log4j.properties \
      -Xmx256M \
      ibis.ipl.server.Server --events --port $CONSTELLATION_PORT
 

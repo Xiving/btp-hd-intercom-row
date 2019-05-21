@@ -42,6 +42,6 @@ java -classpath $CLASSPATH \
      -Dibis.constellation.profile=true \
      -Dibis.constellation.profile.output=gantt \
      -Dibis.constellation.remotesteal.throttle=true \
-     -Dlog4j.configuration=file:"$SIMPLE_ROW_DIR"/log4j.properties \
+     -Dlog4j.configuration=file:"$INTERCOM_ROW_DIR"/log4j.properties \
      -Dcashmere.asyncReads=true -Dcashmere.nGlobalExecutors=1 \
       "$@" 2>&1 | tee out.${PRUN_CPU_RANK}

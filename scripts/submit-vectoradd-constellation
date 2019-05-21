@@ -15,14 +15,14 @@ function check_env_dir() {
     fi
 }
 
-check_env_dir SIMPLE_ROW_DIR
-BIN_DIR=$SIMPLE_ROW_DIR/bin
+check_env_dir INTERCOM_ROW_DIR
+BIN_DIR=$INTERCOM_ROW_DIR/bin
 source $BIN_DIR/check_environment_variable.bash
 
 check_env CONSTELLATION_PORT
 
 ruby $BIN_DIR/submit-on-nodes.das5.rb \
-     $SIMPLE_ROW_DIR \
+     $INTERCOM_ROW_DIR \
      lib/vector-add-constellation.jar \
      btp.hd.simple_row.HeatDissipatorApp \
      "$config_args" \

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-root_dir=ENV['SIMPLE_ROW_DIR']
+root_dir=ENV['INTERCOM_ROW_DIR']
 bin_dir="#{root_dir}/bin"
 
 if ARGV.length < 2

@@ -15,11 +15,11 @@ function check_env_dir() {
     fi
 }
 
-check_env_dir SIMPLE_ROW_DIR
-BIN_DIR=$SIMPLE_ROW_DIR/bin
+check_env_dir INTERCOM_ROW_DIR
+BIN_DIR=$INTERCOM_ROW_DIR/bin
 source $BIN_DIR/check_environment_variable.bash
 
 ruby $BIN_DIR/run-on-local.rb \
-     $SIMPLE_ROW_DIR \
+     $INTERCOM_ROW_DIR \
      btp.hd.simple_row.HeatDissipatorApp \
      "$@"
