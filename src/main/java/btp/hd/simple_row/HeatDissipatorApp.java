@@ -14,18 +14,21 @@ import ibis.constellation.Context;
 import ibis.constellation.StealStrategy;
 import ibis.constellation.Timer;
 import ibis.constellation.util.SingleEventCollector;
+
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class HeatDissipatorApp {
 
-    public static void writeFile(int it, double min, double[][] temp) {
+    public static void writeFile(int it, double min, int w, int h, double ms, double[][] temp) {
         try {
             PrintStream out = new PrintStream("heat-dissipator.out");
 
             out.println(String.format("Iterations: %d, min temp delta: %f", it, min));
+            out.println(String.format("Dimensions: %d x %d, time: %f ms\n", h, w, ms));
 
             for (int i = 0; i < temp.length; i++) {
                 for (int j = 0; j < temp[0].length; j++) {
@@ -64,10 +67,10 @@ public class HeatDissipatorApp {
                 width = Integer.parseInt(args[i]);
             } else {
                 throw new Error("Usage: java HeatDissipatorApp "
-                    + "[ -nrExecutorsPerNode <num> ] "
-                    + "[ -minDifference <num> ] "
-                    + "[ -h <height> ]"
-                    + "[ -w <width> ]");
+                        + "[ -nrExecutorsPerNode <num> ] "
+                        + "[ -minDifference <num> ] "
+                        + "[ -h <height> ]"
+                        + "[ -w <width> ]");
             }
         }
 
@@ -80,17 +83,17 @@ public class HeatDissipatorApp {
 
         // Initialize Constellation with the following configurations
         ConstellationConfiguration config1 =
-            new ConstellationConfiguration(new Context(DivideConquerActivity.LABEL),
-                StealStrategy.SMALLEST, StealStrategy.BIGGEST,
-                StealStrategy.BIGGEST);
+                new ConstellationConfiguration(new Context(DivideConquerActivity.LABEL),
+                        StealStrategy.SMALLEST, StealStrategy.BIGGEST,
+                        StealStrategy.BIGGEST);
 
         ConstellationConfiguration config2 =
-            new ConstellationConfiguration(new Context(StencilOperationActivity.LABEL),
-                StealStrategy.SMALLEST, StealStrategy.BIGGEST,
-                StealStrategy.BIGGEST);
+                new ConstellationConfiguration(new Context(StencilOperationActivity.LABEL),
+                        StealStrategy.SMALLEST, StealStrategy.BIGGEST,
+                        StealStrategy.BIGGEST);
 
         Constellation constellation =
-            ConstellationFactory.createConstellation(config1, config2);
+                ConstellationFactory.createConstellation(config1, config2);
 
         constellation.activate();
 
@@ -114,20 +117,20 @@ public class HeatDissipatorApp {
             do {
 
                 SingleEventCollector sec = new SingleEventCollector(
-                    new Context(DivideConquerActivity.LABEL));
+                        new Context(DivideConquerActivity.LABEL));
                 ActivityIdentifier aid = constellation.submit(sec);
 
                 CylinderSlice slice = Cylinder.of(temp, cond).toSlice();
                 constellation.submit(new DivideConquerActivity(aid, slice, divideConquerThreshold));
 
                 log.debug(
-                    "main(), just submitted, about to waitForEvent() for any event with target "
-                        + aid);
+                        "main(), just submitted, about to waitForEvent() for any event with target "
+                                + aid);
                 result = (TempResult) sec.waitForEvent().getData();
                 log.debug("main(), done with waitForEvent() on identifier " + aid);
 
                 log.info("Performed stencil operation with max temperature delta {}",
-                    result.getMaxDifference());
+                        result.getMaxDifference());
 
                 temp = result.getTemp();
                 i++;
@@ -137,8 +140,8 @@ public class HeatDissipatorApp {
             overallTimer.stop(timing);
 
             log.info("Result after {} iteration(s) and {} ms:\n{}", i, overallTimer.totalTimeVal(),
-                result.toString());
-            writeFile(i, minDifference, result.getTemp());
+                    result.toString());
+            writeFile(i, minDifference, result.width(), result.height(), overallTimer.totalTimeVal() / 1000, result.getTemp());
         }
         log.debug("calling Constellation.done()");
         constellation.done();
