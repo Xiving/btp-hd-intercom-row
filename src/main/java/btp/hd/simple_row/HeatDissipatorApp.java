@@ -1,6 +1,5 @@
 package btp.hd.simple_row;
 
-import btp.hd.simple_row.Activity.DivideConquerActivity;
 import btp.hd.simple_row.Activity.StencilOperationActivity;
 import btp.hd.simple_row.model.*;
 import btp.hd.simple_row.util.HeatValueGenerator;

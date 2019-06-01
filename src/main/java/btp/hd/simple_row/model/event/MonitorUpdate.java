@@ -3,7 +3,7 @@ package btp.hd.simple_row.model.event;
 import lombok.Data;
 
 @Data
-public class MonitorEvent {
+public class MonitorUpdate {
 
     private final Status status;
     private final int iteration;
