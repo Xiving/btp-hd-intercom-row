@@ -11,8 +11,8 @@ To install this software, Java >= 8 is required.  The software can be built
 with:
 
 #+begin_src sh
-git clone https://github.com/JungleComputing/vectoradd-constellation
-cd vectoradd-constellation
+git clone https://github.com/JungleComputing/btp-hd-intercom-row
+cd btp-hd-intercom-row
 ./gradlew distTar
 #+end_src
 
@@ -20,9 +20,9 @@ This creates a distribution in ~build/distributions~ that can be unpacked
 anywhere and run with:
 
 #+begin_src sh
-cp build/distributions/vectoradd-constellation.tar /path/of/your/choice
+cp build/distributions/btp-hd-intercom-row.tar /path/of/your/choice
 cd /path/of/your/choice
-tar xf vectoradd-constellation.tar
+tar xf btp-hd-intercom-row.tar
 #+end_src
 
 Alternatively, the following command installs the distribution in
@@ -39,13 +39,13 @@ installed in ~/path/of/your/choice~.  For example, if you installed it using
 ~installDist~, the path would look like:
 
 #+begin_src sh
-export ROW_IMPL_DIR=/path/of/your/choice/vectoradd-constellation/build/install/vectoradd-constellation
+export ROW_IMPL_DIR=/path/of/your/choice/btp-hd-intercom-row/build/install/btp-hd-intercom-row
 #+end_src
 
 Otherwise:
 
 #+begin_src sh
-export ROW_IMPL_DIR=/path/of/your/choice/vectoradd-constellation
+export ROW_IMPL_DIR=/path/of/your/choice/btp-hd-intercom-row
 cd $ROW_IMPL_DIR
 #+end_src
 
@@ -56,7 +56,7 @@ we will do a vector addition of 8192 elements, the threshold to decide whether
 to compute or to divide into smaller tasks is 128.
 
 #+begin_src sh
-./bin/vectoradd-constellation.local -n 8192 -computeDivideThreshold 128
+./bin/btp-hd-intercom-row.local -n 8192 -computeDivideThreshold 128
 #+end_src
 
 
@@ -82,6 +82,6 @@ to compute or to divide into smaller tasks is 128, and we will run it on 2
 regular nodes in the DAS-5 cluster.
 
 #+begin_src sh
-./bin/vectoradd-constellation -n 8192 -computeDivideThreshold 128 regular=2
+./bin/btp-hd-intercom-row -n 8192 -computeDivideThreshold 128 regular=2
 #+end_src
 
