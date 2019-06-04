@@ -1,4 +1,4 @@
-package btp.hd.simple_row.model.event;
+package btp.hd.intercom_row.model.event;
 
 import lombok.Data;
 

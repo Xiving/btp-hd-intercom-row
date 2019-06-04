@@ -1,11 +1,11 @@
-package btp.hd.simple_row.Activity;
+package btp.hd.intercom_row.Activity;
 
-import btp.hd.simple_row.model.CylinderSlice;
-import btp.hd.simple_row.model.TempResult;
-import btp.hd.simple_row.model.TempRow;
-import btp.hd.simple_row.model.event.MonitorDelta;
-import btp.hd.simple_row.model.event.MonitorUpdate;
-import btp.hd.simple_row.model.event.MonitorUpdate.Status;
+import btp.hd.intercom_row.model.CylinderSlice;
+import btp.hd.intercom_row.model.TempResult;
+import btp.hd.intercom_row.model.TempRow;
+import btp.hd.intercom_row.model.event.MonitorDelta;
+import btp.hd.intercom_row.model.event.MonitorUpdate;
+import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;

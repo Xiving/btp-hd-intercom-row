@@ -1,4 +1,4 @@
-package btp.hd.simple_row.util;
+package btp.hd.intercom_row.util;
 
 import java.io.*;
 import java.util.Objects;

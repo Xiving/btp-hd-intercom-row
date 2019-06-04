@@ -1,4 +1,4 @@
-package btp.hd.simple_row.model;
+package btp.hd.intercom_row.model;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

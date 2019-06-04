@@ -1,9 +1,9 @@
-package btp.hd.simple_row.Activity;
+package btp.hd.intercom_row.Activity;
 
-import btp.hd.simple_row.model.event.MonitorDelta;
-import btp.hd.simple_row.model.event.MonitorUpdate;
-import btp.hd.simple_row.model.event.MonitorUpdate.Status;
-import btp.hd.simple_row.model.event.StartEvent;
+import btp.hd.intercom_row.model.event.MonitorDelta;
+import btp.hd.intercom_row.model.event.MonitorUpdate;
+import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
+import btp.hd.intercom_row.model.event.StartEvent;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;

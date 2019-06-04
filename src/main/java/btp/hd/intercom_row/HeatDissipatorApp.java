@@ -1,13 +1,12 @@
-package btp.hd.simple_row;
+package btp.hd.intercom_row;
 
-import btp.hd.simple_row.Activity.MonitorActivity;
-import btp.hd.simple_row.Activity.StencilOperationActivity;
-import btp.hd.simple_row.model.*;
-import btp.hd.simple_row.model.event.StartEvent;
-import btp.hd.simple_row.util.HeatValueGenerator;
+import btp.hd.intercom_row.Activity.MonitorActivity;
+import btp.hd.intercom_row.Activity.StencilOperationActivity;
+import btp.hd.intercom_row.model.*;
+import btp.hd.intercom_row.model.event.StartEvent;
+import btp.hd.intercom_row.util.HeatValueGenerator;
 import ibis.constellation.*;
 import ibis.constellation.util.MultiEventCollector;
-import ibis.constellation.util.SingleEventCollector;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
