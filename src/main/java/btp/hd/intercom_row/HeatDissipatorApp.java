@@ -168,7 +168,7 @@ public class HeatDissipatorApp {
 
             overallTimer.stop(timing);
 
-            log.info("Result of size {} x {} after {} iteration(s) and {} ms:\n{}", result.height(), result.width(), result.getIteration(), overallTimer.totalTimeVal(), result.toString());
+            log.info("Result of size {} x {} after {} iteration(s) and {} ms:\n{}", result.height(), result.width(), result.getIteration(), overallTimer.totalTimeVal() / 1000, result.toString());
             writeFile(result.getIteration(), minDifference, result.width(), result.height(),
                     overallTimer.totalTimeVal() / 1000, result);
         }
