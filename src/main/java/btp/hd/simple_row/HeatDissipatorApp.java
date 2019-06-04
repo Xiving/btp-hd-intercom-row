@@ -3,21 +3,21 @@ package btp.hd.simple_row;
 import btp.hd.simple_row.Activity.MonitorActivity;
 import btp.hd.simple_row.Activity.StencilOperationActivity;
 import btp.hd.simple_row.model.*;
+import btp.hd.simple_row.model.event.StartEvent;
 import btp.hd.simple_row.util.HeatValueGenerator;
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Constellation;
-import ibis.constellation.ConstellationConfiguration;
-import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Context;
-import ibis.constellation.OrContext;
-import ibis.constellation.StealStrategy;
-import ibis.constellation.Timer;
+import ibis.constellation.*;
+import ibis.constellation.util.MultiEventCollector;
 import ibis.constellation.util.SingleEventCollector;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,6 +40,7 @@ public class HeatDissipatorApp {
 
         int nrExecutorsPerNode = 4;
         double minDifference = 10;
+        int maxIterations = Integer.MAX_VALUE;
         int height = 10;
         int width = 10;
         int nrNodes = 4;
@@ -56,33 +57,33 @@ public class HeatDissipatorApp {
                 width = Integer.parseInt(args[i]);
             } else {
                 throw new Error("Usage: java HeatDissipatorApp "
-                    + "[ -threshold <num> ] "
-                    + "[ -minDifference <num> ] "
-                    + "[ -h <height> ]"
-                    + "[ -w <width> ]");
+                        + "[ -threshold <num> ] "
+                        + "[ -minDifference <num> ] "
+                        + "[ -h <height> ]"
+                        + "[ -w <width> ]");
             }
         }
 
-        String ibisPoolSize = System.getProperty("ibis.pool.size");
-        if (ibisPoolSize != null) {
-            nrNodes = Integer.parseInt(ibisPoolSize);
-        }
+//        String ibisPoolSize = System.getProperty("ibis.pool.size");
+//        if (ibisPoolSize != null) {
+//            nrNodes = Integer.parseInt(ibisPoolSize);
+//        }
 
         log.info("HeatDissipatorApp, running with dimensions {} x {}:", height, width);
 
         // Initialize Constellation with the following configurations
         OrContext orContext = new OrContext(new Context(StencilOperationActivity.LABEL),
-            new Context(
-                MonitorActivity.LABEL));
+                new Context(
+                        MonitorActivity.LABEL));
 
         // Initialize Constellation with the following configurations
         ConstellationConfiguration config =
-            new ConstellationConfiguration(orContext,
-                StealStrategy.SMALLEST, StealStrategy.BIGGEST,
-                StealStrategy.BIGGEST);
+                new ConstellationConfiguration(orContext,
+                        StealStrategy.SMALLEST, StealStrategy.BIGGEST,
+                        StealStrategy.BIGGEST);
 
         Constellation constellation =
-            ConstellationFactory.createConstellation(config, nrExecutorsPerNode);
+                ConstellationFactory.createConstellation(config, nrExecutorsPerNode);
 
         constellation.activate();
 
@@ -91,50 +92,83 @@ public class HeatDissipatorApp {
             // Constellation.done(), waiting for Activities to steal.
 
             HeatValueGenerator heatValueGenerator = new HeatValueGenerator(height, width, 0.05,
-                10000);
+                    10000);
 
             double[][] temp = heatValueGenerator.getTemp();
             double[][] cond = heatValueGenerator.getCond();
 
-            TempResult result = TempResult.of(temp, 0, 0, 0);
-
             Timer overallTimer = constellation.getOverallTimer();
             int timing = overallTimer.start();
 
-            log.info("Performing stencil operations on:\n{}", result.toString());
-
-            SingleEventCollector sec = new SingleEventCollector(
-                new Context(StencilOperationActivity.LABEL));
+            MultiEventCollector sec = new MultiEventCollector(
+                    new Context(StencilOperationActivity.LABEL), nrNodes);
             ActivityIdentifier aid = constellation.submit(sec);
 
             CylinderSlice slice = Cylinder.of(temp, cond).toSlice();
 
-            ArrayList<StencilOperationActivity> activities = new ArrayList<>(nrNodes);
+            log.info("Performing stencil operations on:\n{}", slice.getResult().toString());
+
+            List<StencilOperationActivity> activities = new ArrayList<>(nrNodes + 2);
+            for (int i = 0; i < nrNodes + 2; i++) {
+                activities.add(null);
+            }
             int currentIndex = 0;
-            int currentY = 0;
+            int currentY = 1;
 
             while (currentIndex < nrNodes) {
-                int until = currentY + (int) Math.ceil((((double) slice.height()) - currentY)/ (nrNodes - currentIndex));
-                CylinderSlice nextSlice = CylinderSlice.of(slice, currentY, until);
-                StencilOperationActivity activity = new StencilOperationActivity(aid, nextSlice);
+                int rowsLeft = slice.height() - 1 - currentY;
+                int chunksLeft = nrNodes - currentIndex;
+                int until = currentY + (int) Math.ceil(((double) rowsLeft) / chunksLeft);
 
+                log.info("from: {}", currentY - 1);
+                log.info("until: {}", until + 1);
+
+                CylinderSlice nextSlice = CylinderSlice.of(slice, currentY - 1, until + 1);
+                StencilOperationActivity activity = new StencilOperationActivity(aid, nextSlice);
+                activities.add(currentIndex + 1, activity);
+                constellation.submit(activity);
+                currentIndex++;
+                currentY = until;
             }
 
-            log.debug(
-                "main(), just submitted, about to waitForEvent() for any event with target "
-                    + aid);
-            result = (TempResult) sec.waitForEvent().getData();
-            log.debug("main(), done with waitForEvent() on identifier " + aid);
+            MonitorActivity monitor = new MonitorActivity(
+                    maxIterations,
+                    minDifference,
+                    activities.stream().filter(Objects::nonNull).map(Activity::identifier).collect(Collectors.toList())
+            );
 
-            log.info("Performed stencil operation with max temperature delta {}",
-                result.getMaxDelta());
+            constellation.submit(monitor);
+
+            for (int i = 1; i < (nrNodes + 1); i++) {
+                ActivityIdentifier upper = (i == 1) ? null : activities.get(i - 1).identifier();
+                ActivityIdentifier lower = (i == nrNodes) ? null : activities.get(i + 1).identifier();
+
+                activities.get(i).init(upper, lower, monitor.identifier());
+            }
+
+            constellation.send(new Event(aid, monitor.identifier(), new StartEvent()));
+
+            log.debug(
+                    "main(), just submitted, about to waitForEvent() for any event with target "
+                            + aid);
+
+            TempResult result = TempResult.of(slice);
+
+
+            Event[] event = sec.waitForEvents();
+            log.info("main(), received results on identifier " + aid);
+
+            Stream.of(event).forEach(e -> {
+                        log.debug("Adding chunk {} to result", e);
+                        result.add((TempResult) e.getData());
+                    }
+            );
 
             overallTimer.stop(timing);
 
-            log.info("Result after {} iteration(s) and {} ms:\n{}", result.getIteration(), overallTimer.totalTimeVal(),
-                result.toString());
+            log.info("Result of size {} x {} after {} iteration(s) and {} ms:\n{}", result.height(), result.width(), result.getIteration(), overallTimer.totalTimeVal(), result.toString());
             writeFile(result.getIteration(), minDifference, result.width(), result.height(),
-                overallTimer.totalTimeVal() / 1000, result);
+                    overallTimer.totalTimeVal() / 1000, result);
         }
         log.debug("calling Constellation.done()");
         constellation.done();
