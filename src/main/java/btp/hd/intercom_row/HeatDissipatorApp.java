@@ -134,7 +134,7 @@ public class HeatDissipatorApp {
             }
 
             for (StencilOperationActivity activity : activities) {
-                constellation.submit(activity);
+                if (Objects.nonNull(activity)) constellation.submit(activity);
             }
 
             MonitorActivity monitor = new MonitorActivity(
