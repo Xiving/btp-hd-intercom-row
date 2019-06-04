@@ -24,7 +24,7 @@ public class MonitorActivity extends Activity {
     private final List<ActivityIdentifier> recipients;
 
     private int currentIteration;
-    private int deltasRecieved;
+    private int deltasReceived;
     private double maxDelta;
 
     public MonitorActivity(
@@ -38,13 +38,12 @@ public class MonitorActivity extends Activity {
         this.recipients = recipients;
 
         currentIteration = 0;
-        deltasRecieved = 0;
+        deltasReceived = 0;
         maxDelta = Double.MAX_VALUE;
     }
 
     @Override
     public int initialize(Constellation cons) {
-        broadcastNextIteration(cons);
         return SUSPEND;
     }
 
@@ -68,7 +67,7 @@ public class MonitorActivity extends Activity {
             return SUSPEND;
         }
 
-        deltasRecieved++;
+        deltasReceived++;
         maxDelta = Math.max(maxDelta, delta.getDelta());
         return broadcastWhenNeeded(cons);
     }
@@ -92,9 +91,9 @@ public class MonitorActivity extends Activity {
                 return FINISH;
             }
 
-            deltasRecieved = 0;
+            deltasReceived = 0;
             maxDelta = 0;
-        } else if (deltasRecieved >= recipients.size()) {
+        } else if (deltasReceived >= recipients.size()) {
             log.info("Max delta is below minimum!");
             return FINISH;
         }
