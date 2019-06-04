@@ -45,9 +45,12 @@ public class HeatDissipatorApp {
         int nrNodes = 4;
 
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-minDifference")) {
+            if (args[i].equals("-d")) {
                 i++;
                 minDifference = Double.parseDouble(args[i]);
+            } else if (args[i].equals("-m")) {
+                i++;
+                maxIterations = Integer.parseInt(args[i]);
             } else if (args[i].equals("-h")) {
                 i++;
                 height = Integer.parseInt(args[i]);
@@ -56,8 +59,8 @@ public class HeatDissipatorApp {
                 width = Integer.parseInt(args[i]);
             } else {
                 throw new Error("Usage: java HeatDissipatorApp "
-                        + "[ -threshold <num> ] "
-                        + "[ -minDifference <num> ] "
+                        + "[ -d <num> ] minimum temp delta"
+                        + "[ -m <num> ] maximum iterations"
                         + "[ -h <height> ]"
                         + "[ -w <width> ]");
             }
