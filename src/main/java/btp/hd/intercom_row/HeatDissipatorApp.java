@@ -94,7 +94,7 @@ public class HeatDissipatorApp {
             // This is master specific code.  The rest is going to call
             // Constellation.done(), waiting for Activities to steal.
 
-            HeatValueGenerator heatValueGenerator = new HeatValueGenerator(height, width, 0.1,
+            HeatValueGenerator heatValueGenerator = new HeatValueGenerator(height, width, 0.001,
                     100);
 
             double[][] temp = heatValueGenerator.getTemp();
