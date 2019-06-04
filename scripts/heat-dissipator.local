@@ -21,5 +21,5 @@ source $BIN_DIR/check_environment_variable.bash
 
 ruby $BIN_DIR/run-on-local.rb \
      $INTERCOM_ROW_DIR \
-     btp.hd.simple_row.HeatDissipatorApp \
+     btp.hd.intercom_row.HeatDissipatorApp \
      "$@"

@@ -24,6 +24,6 @@ check_env CONSTELLATION_PORT
 ruby $BIN_DIR/run-on-nodes.das5.rb \
      $INTERCOM_ROW_DIR \
      lib/btp-hd-intercom-row.jar \
-     btp.hd.simple_row.HeatDissipatorApp \
+     btp.hd.intercom_row.HeatDissipatorApp \
      "$config_args" \
      "$@"
