@@ -11,12 +11,20 @@ public class CylinderSlice extends HeatChunk {
     private static final double DIAGONAL_CONST = 0.25 / (Math.sqrt(2) + 1.0);
 
     private final int parentOffset;
-    private final int iteration;
+
+    private int iteration;
+    private boolean topReady;
+    private boolean botReady;
+    private double maxDelta;
 
     private CylinderSlice(int parentOffset, int iteration, double[][] temp, double[][] cond) {
         super(temp, cond);
         this.parentOffset = parentOffset;
         this.iteration = iteration;
+
+        topReady = true;
+        botReady = true;
+        maxDelta = 0;
     }
 
     @Override
@@ -73,6 +81,62 @@ public class CylinderSlice extends HeatChunk {
         return resultChunk;
     }
 
+    public void update(TempResult result) {
+        for (int i = 0; i < result.height(); i++) {
+            for (int j = 0; j < result.width(); j++) {
+                getTemp()[i + 1][j + 1] = result.getTemp()[i][j];
+            }
+        }
+
+        for (int i = 1; i < height() - 1; i++) {
+            getTemp()[i][0] = getTemp()[i][width() - 2];
+            getTemp()[i][width() - 1] = getTemp()[i][1];
+        }
+
+        iteration = result.getIteration() + 1;
+        topReady = false;
+        botReady = false;
+        maxDelta = result.getMaxDelta();
+    }
+
+    public void updateTop(TempRow row) {
+        if (row.getIteration() != iteration) {
+            throw new IllegalArgumentException("Iteration do not match!");
+        }
+
+        getTemp()[0] = row.getTemp();
+        topReady = true;
+    }
+
+    public void updateBot(TempRow row) {
+        if (row.getIteration() != iteration) {
+            throw new IllegalArgumentException("Iteration do not match!");
+        }
+
+        getTemp()[height() - 1] = row.getTemp();
+        botReady = true;
+    }
+
+    public TempResult getResult() {
+        double[][] temp = new double[height() - 2][width() - 2];
+
+        for (int i = 1; i < height() - 1; i++) {
+            for (int j = 1; j < width(); j++) {
+                temp[i - 1][j -1] = getTemp()[i][j];
+            }
+        }
+
+        return TempResult.of(temp, parentOffset, iteration, maxDelta);
+    }
+
+    public TempRow getTop() {
+        return new TempRow(iteration, getTemp()[1]);
+    }
+
+    public TempRow getBot() {
+        return new TempRow(iteration, getTemp()[height() - 2]);
+    }
+
     private static double nextTemp(double[][] temp, double[][] cond, int i, int j) {
         double w = cond[i][j];
         double restW = 1 - w;
@@ -82,5 +146,9 @@ public class CylinderSlice extends HeatChunk {
                 * DIRECT_CONST) +
             (temp[i - 1][j - 1] + temp[i - 1][j + 1] + temp[i + 1][j - 1] + temp[i + 1][j + 1]) * (
                 restW * DIAGONAL_CONST);
+    }
+
+    public boolean ready() {
+        return topReady && botReady;
     }
 }

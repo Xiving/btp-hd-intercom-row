@@ -3,6 +3,7 @@ package btp.hd.simple_row.Activity;
 import btp.hd.simple_row.model.event.MonitorDelta;
 import btp.hd.simple_row.model.event.MonitorUpdate;
 import btp.hd.simple_row.model.event.MonitorUpdate.Status;
+import btp.hd.simple_row.model.event.StartEvent;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
@@ -38,7 +39,7 @@ public class MonitorActivity extends Activity {
 
         currentIteration = 0;
         deltasRecieved = 0;
-        maxDelta = 0;
+        maxDelta = Double.MAX_VALUE;
     }
 
     @Override
@@ -49,6 +50,12 @@ public class MonitorActivity extends Activity {
 
     @Override
     public int process(Constellation cons, Event event) {
+        Object o = event.getData();
+
+        if (o instanceof StartEvent) {
+            return broadcastWhenNeeded(cons);
+        }
+
         if (!recipients.contains(event.getSource())) {
             log.warn("Received event from unknown source: {}", event.getSource());
             return SUSPEND;
