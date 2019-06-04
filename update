@@ -1,4 +1,4 @@
 git reset --hard
 git pull
 cd ../
-chmod -R u=rwx btp-hd-simple-row/
+chmod -R u=rwx btp-hd-intercom-row/
