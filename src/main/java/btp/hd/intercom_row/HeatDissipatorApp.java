@@ -26,7 +26,7 @@ public class HeatDissipatorApp {
         try {
             PrintStream out = new PrintStream("heat-dissipator.out");
 
-            out.println("Performed simple row heat dissipator sim");
+            out.println("Performed intercom row heat dissipator sim");
             out.println(String.format("Iterations: %d, min temp delta: %f", it, min));
             out.println(String.format("Dimensions: %d x %d, time: %f ms\n", h, w, ms));
             out.println(temp.toString());
