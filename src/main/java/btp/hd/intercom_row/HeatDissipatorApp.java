@@ -94,7 +94,7 @@ public class HeatDissipatorApp {
             // Constellation.done(), waiting for Activities to steal.
 
             HeatValueGenerator heatValueGenerator = new HeatValueGenerator(height, width, 0.05,
-                    10000);
+                    100);
 
             double[][] temp = heatValueGenerator.getTemp();
             double[][] cond = heatValueGenerator.getCond();
