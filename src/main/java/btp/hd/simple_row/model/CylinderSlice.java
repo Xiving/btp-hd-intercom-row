@@ -13,18 +13,20 @@ public class CylinderSlice extends HeatChunk {
     private final int parentOffset;
 
     private int iteration;
-    private boolean topReady;
-    private boolean botReady;
     private double maxDelta;
 
-    private CylinderSlice(int parentOffset, int iteration, double[][] temp, double[][] cond) {
+    private boolean topReady;
+    private boolean botReady;
+
+    private CylinderSlice(int parentOffset, double[][] temp, double[][] cond) {
         super(temp, cond);
         this.parentOffset = parentOffset;
-        this.iteration = iteration;
+
+        maxDelta = 0;
+        iteration = 0;
 
         topReady = true;
         botReady = true;
-        maxDelta = 0;
     }
 
     @Override
@@ -33,7 +35,7 @@ public class CylinderSlice extends HeatChunk {
     }
 
     public static CylinderSlice of(Cylinder parent) {
-        return new CylinderSlice(0, 1, parent.getTemp(), parent.getCond());
+        return new CylinderSlice(0, parent.getTemp(), parent.getCond());
     }
 
     public static CylinderSlice of(CylinderSlice parent, int begin, int end) {
@@ -53,10 +55,10 @@ public class CylinderSlice extends HeatChunk {
             }
         }
 
-        return new CylinderSlice(begin, parent.getIteration(), temp, cond);
+        return new CylinderSlice(begin, temp, cond);
     }
 
-    public TempResult result() {
+    public TempResult calcNextResult() {
         double maxDifference = 0;
         int height = height() - 2;
         int width = width() - 2;
@@ -68,17 +70,11 @@ public class CylinderSlice extends HeatChunk {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 result[i][j] = nextTemp(temp, cond, i + 1, j + 1);
-
-                double difference = Math.abs(temp[i + 1][j + 1] - result[i][j]);
-
-                if (difference > maxDifference) {
-                    maxDifference = difference;
-                }
+                maxDifference = Math.max(maxDifference, Math.abs(temp[i + 1][j + 1] - result[i][j]));
             }
         }
 
-        TempResult resultChunk = TempResult.of(result, parentOffset, iteration, maxDifference);
-        return resultChunk;
+        return TempResult.of(result, parentOffset, iteration + 1, maxDifference);
     }
 
     public void update(TempResult result) {
@@ -93,10 +89,11 @@ public class CylinderSlice extends HeatChunk {
             getTemp()[i][width() - 1] = getTemp()[i][1];
         }
 
-        iteration = result.getIteration() + 1;
+        iteration = result.getIteration();
+        maxDelta = result.getMaxDelta();
+
         topReady = false;
         botReady = false;
-        maxDelta = result.getMaxDelta();
     }
 
     public void updateTop(TempRow row) {
@@ -120,9 +117,9 @@ public class CylinderSlice extends HeatChunk {
     public TempResult getResult() {
         double[][] temp = new double[height() - 2][width() - 2];
 
-        for (int i = 1; i < height() - 1; i++) {
-            for (int j = 1; j < width(); j++) {
-                temp[i - 1][j -1] = getTemp()[i][j];
+        for (int i = 0; i < height() - 2; i++) {
+            for (int j = 0; j < width() - 2; j++) {
+                temp[i][j] = getTemp()[i + 1][j + 1];
             }
         }
 

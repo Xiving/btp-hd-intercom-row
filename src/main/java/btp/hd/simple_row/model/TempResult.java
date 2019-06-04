@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TempResult extends TempChunk {
 
     private final int parentOffset;
-    private final int iteration;
 
+    private int iteration;
     private double maxDelta;
     private int rowsAdded;
 
@@ -41,6 +41,7 @@ public class TempResult extends TempChunk {
         System.arraycopy(result.getTemp(), 0, getTemp(), result.getParentOffset(), result.height());
         rowsAdded += result.height();
         maxDelta = Math.max(maxDelta, result.getMaxDelta());
+        iteration = result.getIteration();
     }
 
     public boolean finished() {

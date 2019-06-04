@@ -3,6 +3,7 @@ package btp.hd.simple_row.Activity;
 import btp.hd.simple_row.model.CylinderSlice;
 import btp.hd.simple_row.model.TempResult;
 import btp.hd.simple_row.model.TempRow;
+import btp.hd.simple_row.model.event.MonitorDelta;
 import btp.hd.simple_row.model.event.MonitorUpdate;
 import btp.hd.simple_row.model.event.MonitorUpdate.Status;
 import ibis.constellation.Activity;
@@ -27,6 +28,7 @@ public class StencilOperationActivity extends Activity {
 
     private ActivityIdentifier upperActivity;
     private ActivityIdentifier lowerActivity;
+    private ActivityIdentifier monitorActivity;
 
     private int calcUntilIndex;
     private boolean finished;
@@ -52,6 +54,12 @@ public class StencilOperationActivity extends Activity {
         log.info("Created '{}' activity with size {} x {}", LABEL, slice.height() - 2, slice.width() - 2);
     }
 
+    public void init(ActivityIdentifier upper, ActivityIdentifier lower, ActivityIdentifier monitor) {
+        upperActivity = upper;
+        lowerActivity = lower;
+        monitorActivity = monitor;
+    }
+
     @Override
     public int initialize(Constellation cons) {
         return SUSPEND;
@@ -59,6 +67,7 @@ public class StencilOperationActivity extends Activity {
 
     @Override
     public int process(Constellation cons, Event event) {
+        log.debug("Process event: {}", event.toString());
         Object o = event.getData();
 
         if (o instanceof TempRow) {
@@ -95,19 +104,12 @@ public class StencilOperationActivity extends Activity {
         }
 
         if (!slice.isBotReady() && Objects.nonNull(botRows.get(slice.getIteration()))) {
-            slice.updateTop(botRows.get(slice.getIteration()));
+            slice.updateBot(botRows.get(slice.getIteration()));
         }
 
-        if (slice.ready()) {
+        if (slice.ready() && slice.getIteration() < calcUntilIndex) {
             calc(cons);
-
-            if (Objects.nonNull(upperActivity)) {
-                cons.send(new Event(identifier(), upperActivity, slice.getTop()));
-            }
-
-            if (Objects.nonNull(lowerActivity)) {
-                cons.send(new Event(identifier(), lowerActivity, slice.getBot()));
-            }
+            sendUpdates(cons);
         }
 
         if (slice.getIteration() == calcUntilIndex && finished) {
@@ -123,19 +125,35 @@ public class StencilOperationActivity extends Activity {
         int timing = timer.start();
 
         log.debug("Performing stencil operation on:\n{}", slice.toString());
-        TempResult result = slice.result();
+        TempResult result = slice.calcNextResult();
         log.debug("Result of stencil operation:\n{}", result.toString());
         slice.update(result);
 
-        if (Objects.isNull(upperActivity)) {
-            slice.setTopReady(true);
-        } else if (Objects.isNull(lowerActivity)) {
-            slice.setBotReady(true);
-        }
-
         timer.stop(timing);
 
-        log.info("Performed  a stencil operation of size {} x {} in {} ms",
-            slice.height(), slice.width(), timer.totalTimeVal() / 1000);
+        log.info("Performed  a stencil operation of size {} x {} in {} ms, iteration: {}",
+                slice.height(), slice.width(), timer.totalTimeVal() / 1000, slice.getIteration());
+
+        if (Objects.isNull(upperActivity)) {
+            slice.setTopReady(true);
+        }
+
+        if (Objects.isNull(lowerActivity)) {
+            slice.setBotReady(true);
+        }
+    }
+
+    private void sendUpdates(Constellation cons) {
+        if (Objects.nonNull(upperActivity)) {
+            cons.send(new Event(identifier(), upperActivity, slice.getTop()));
+        }
+
+        if (Objects.nonNull(lowerActivity)) {
+            cons.send(new Event(identifier(), lowerActivity, slice.getBot()));
+        }
+
+        if (!finished) {
+            cons.send(new Event(identifier(), monitorActivity, new MonitorDelta(slice.getIteration(), slice.getMaxDelta())));
+        }
     }
 }
