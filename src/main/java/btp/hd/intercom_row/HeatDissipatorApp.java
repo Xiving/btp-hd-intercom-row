@@ -129,9 +129,12 @@ public class HeatDissipatorApp {
                 CylinderSlice nextSlice = CylinderSlice.of(slice, currentY - 1, until + 1);
                 StencilOperationActivity activity = new StencilOperationActivity(aid, nextSlice);
                 activities.add(currentIndex + 1, activity);
-                constellation.submit(activity);
                 currentIndex++;
                 currentY = until;
+            }
+
+            for (StencilOperationActivity activity : activities) {
+                constellation.submit(activity);
             }
 
             MonitorActivity monitor = new MonitorActivity(
