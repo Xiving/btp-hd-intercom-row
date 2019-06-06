@@ -5,6 +5,8 @@ import btp.hd.intercom_row.Activity.StencilOperationActivity;
 import btp.hd.intercom_row.model.*;
 import btp.hd.intercom_row.model.event.StartEvent;
 import btp.hd.intercom_row.util.HeatValueGenerator;
+import btp.hd.intercom_row.util.JobSubmission;
+import btp.hd.intercom_row.util.NodeInformation;
 import ibis.constellation.*;
 import ibis.constellation.util.MultiEventCollector;
 
@@ -38,7 +40,10 @@ public class HeatDissipatorApp {
 
     public static void main(String[] args) throws Exception {
 
-        int nrExecutorsPerNode = 4;
+        NodeInformation.setHostName();
+        JobSubmission.getNodes();
+
+        int nrExecutorsPerNode = 1;
         double minDifference = 10;
         int maxIterations = Integer.MAX_VALUE;
         int height = 10;
@@ -67,17 +72,16 @@ public class HeatDissipatorApp {
             }
         }
 
-//        String ibisPoolSize = System.getProperty("ibis.pool.size");
-//        if (ibisPoolSize != null) {
-//            nrNodes = Integer.parseInt(ibisPoolSize);
-//        }
+        String ibisPoolSize = System.getProperty("ibis.pool.size");
+        if (ibisPoolSize != null) {
+            nrNodes = Integer.parseInt(ibisPoolSize);
+        }
 
         log.info("HeatDissipatorApp, running with dimensions {} x {}:", height, width);
 
         // Initialize Constellation with the following configurations
         OrContext orContext = new OrContext(new Context(StencilOperationActivity.LABEL),
-                new Context(
-                        MonitorActivity.LABEL));
+                new Context(MonitorActivity.LABEL));
 
         // Initialize Constellation with the following configurations
         ConstellationConfiguration config =
