@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.Objects;
 
 public class NodeInformation {
 
@@ -45,12 +46,7 @@ public class NodeInformation {
 
     public static int getNrExecutors(String property, int defaultValue) {
         String prop = System.getProperties().getProperty(property);
-        int nrExecutors = defaultValue;
-        if (prop != null) {
-            nrExecutors = Integer.parseInt(prop);
-        }
-
-        return nrExecutors;
+        return Objects.nonNull(prop)? Integer.parseInt(prop): defaultValue;
     }
 
     public static void setHostName() {
