@@ -185,7 +185,8 @@ public class HeatDissipatorApp {
     // Initialize Constellation with the following configurations
     ConstellationConfiguration config = new ConstellationConfiguration(orContext);
 
-    Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
+    // Todo: remove constant
+    Constellation cons = ConstellationFactory.createConstellation(config, 1)//nrExecutors);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
       System.exit(1);
