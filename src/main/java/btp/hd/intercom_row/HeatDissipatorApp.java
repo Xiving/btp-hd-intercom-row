@@ -107,14 +107,13 @@ public class HeatDissipatorApp {
       List<ActivityIdentifier> identifiers = submitActivities(cons, activities);
       ActivityIdentifier monitor = createMonitor(cons, identifiers, maxIterations, minDifference);
 
-      log.info(identifiers.toString());
-
       // link up activities
       for (int i = 0; i < identifiers.size(); i++) {
         ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
         ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
-        log.info("Sending init event to: {}", identifiers.get(i));
-        cons.send(new Event(aid, identifiers.get(i), new InitEvent(upper, lower, monitor)));
+        InitEvent event = new InitEvent(upper, lower, monitor);
+        log.info("Sending init event: {}", event.toString());
+        cons.send(new Event(aid, identifiers.get(i), event));
       }
 
       Timer overallTimer = cons.getOverallTimer();
