@@ -35,219 +35,214 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HeatDissipatorApp {
 
-    public static void writeFile(int it, double min, int w, int h, double ms, TempChunk temp) {
-        try {
-            PrintStream out = new PrintStream("heat-dissipator.out");
+  public static void writeFile(int it, double min, int w, int h, double ms, TempChunk temp) {
+    try {
+      PrintStream out = new PrintStream("heat-dissipator.out");
 
-            out.println("Performed intercom row heat dissipator sim");
-            out.println(String.format("Iterations: %d, min temp delta: %f", it, min));
-            out.println(String.format("Dimensions: %d x %d, time: %f ms\n", h, w, ms));
-            out.println(temp.toString());
-            out.close();
-        } catch (FileNotFoundException e) {
-            log.error(e.getMessage());
-        }
+      out.println("Performed intercom row heat dissipator sim");
+      out.println(String.format("Iterations: %d, min temp delta: %f", it, min));
+      out.println(String.format("Dimensions: %d x %d, time: %f ms\n", h, w, ms));
+      out.println(temp.toString());
+      out.close();
+    } catch (FileNotFoundException e) {
+      log.error(e.getMessage());
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+
+    // Default config
+    int nrExecutorsPerNode = 1;
+    double minDifference = 10;
+    int maxIterations = Integer.MAX_VALUE;
+    int height = 10;
+    int width = 10;
+
+    // overwrite defaults with input arguments
+    for (int i = 0; i < args.length; i += 2) {
+      switch (args[i]) {
+        case "-e":
+          nrExecutorsPerNode = Integer.parseInt(args[i + 1]);
+          break;
+        case "-d":
+          minDifference = Double.parseDouble(args[i + 1]);
+          break;
+        case "-m":
+          maxIterations = Integer.parseInt(args[i + 1]);
+          break;
+        case "-h":
+          height = Integer.parseInt(args[i + 1]);
+          break;
+        case "-w":
+          width = Integer.parseInt(args[i + 1]);
+          break;
+        default:
+          throw new Error("Usage: java HeatDissipatorApp "
+              + "[ -e <nrOfExecutors> ]"
+              + "[ -d <minDelta> ]"
+              + "[ -m <maxIteration> ]"
+              + "[ -h <height> ]"
+              + "[ -w <width> ]");
+      }
     }
 
-    public static void main(String[] args) throws Exception {
+    Constellation cons = activateContellation(nrExecutorsPerNode);
 
-        // Default config
-        int nrExecutorsPerNode = 1;
-        double minDifference = 10;
-        int maxIterations = Integer.MAX_VALUE;
-        int height = 10;
-        int width = 10;
+    if (cons.isMaster()) {
+      // Acquire heat info
+      // todo: from file
+      CylinderSlice slice = createCylinder(height, width);
+      MultiEventCollector mec = createCollector(JobSubmission.getNodes(), nrExecutorsPerNode);
+      ActivityIdentifier aid = cons.submit(mec);
 
-        // overwrite defaults with input arguments
-        for (int i = 0; i < args.length; i += 2) {
-            switch (args[i]) {
-                case "-e":
-                    nrExecutorsPerNode = Integer.parseInt(args[i + 1]);
-                    break;
-                case "-d":
-                    minDifference = Double.parseDouble(args[i + 1]);
-                    break;
-                case "-m":
-                    maxIterations = Integer.parseInt(args[i + 1]);
-                    break;
-                case "-h":
-                    height = Integer.parseInt(args[i + 1]);
-                    break;
-                case "-w":
-                    width = Integer.parseInt(args[i + 1]);
-                    break;
-                default:
-                    throw new Error("Usage: java HeatDissipatorApp "
-                        + "[ -e <nrOfExecutors> ]"
-                        + "[ -d <minDelta> ]"
-                        + "[ -m <maxIteration> ]"
-                        + "[ -h <height> ]"
-                        + "[ -w <width> ]");
-            }
-        }
+      // create activities
+      List<StencilActivity> activities = createActivities(
+          aid,
+          slice,
+          JobSubmission.getNodes(),
+          nrExecutorsPerNode
+      );
 
-        Constellation cons = activateContellation(nrExecutorsPerNode);
+      // submit activities and create monitor
+      List<ActivityIdentifier> identifiers = submitActivities(cons, activities);
+      ActivityIdentifier monitor = createMonitor(cons, identifiers, maxIterations, minDifference);
 
-        if (cons.isMaster()) {
-            // Acquire heat info
-            // todo: from file
-            CylinderSlice slice = createCylinder(height, width);
-            MultiEventCollector mec = createCollector(JobSubmission.getNodes(), nrExecutorsPerNode);
-            ActivityIdentifier aid = cons.submit(mec);
+      // link up activities
+      for (int i = 0; i < identifiers.size(); i++) {
+        ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
+        ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
+        cons.send(new Event(aid, identifiers.get(i), new InitEvent(upper, lower, monitor)));
+      }
 
-            // create activities
-            List<StencilActivity> activities = createActivities(
-                aid,
-                slice,
-                JobSubmission.getNodes(),
-                nrExecutorsPerNode
-            );
+      Timer overallTimer = cons.getOverallTimer();
+      int timing = overallTimer.start();
 
-            // submit activities and create monitor
-            List<ActivityIdentifier> identifiers = submitActivities(cons, activities);
-            ActivityIdentifier monitor = createMonitor(cons, identifiers, maxIterations, minDifference);
+      cons.send(new Event(aid, monitor, new StartEvent()));
 
-            // link up activities
-            for (int i = 0; i < identifiers.size(); i++) {
-                ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
-                ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
-                cons.send(new Event(aid, identifiers.get(i), new InitEvent(upper, lower, monitor)));
-            }
+      log.debug(
+          "main(), just submitted, about to waitForEvent() for any event with target "
+              + aid);
 
-            Timer overallTimer = cons.getOverallTimer();
-            int timing = overallTimer.start();
+      TempResult result = TempResult.of(slice);
 
-            cons.send(new Event(aid, monitor, new StartEvent()));
+      Event[] event = mec.waitForEvents();
+      log.info("main(), received results on identifier " + aid);
 
-            log.debug(
-                "main(), just submitted, about to waitForEvent() for any event with target "
-                    + aid);
+      Stream.of(event).forEach(e -> {
+            log.debug("Adding chunk {} to result", e);
+            result.add((TempResult) e.getData());
+          }
+      );
 
-            TempResult result = TempResult.of(slice);
+      overallTimer.stop(timing);
 
-            Event[] event = mec.waitForEvents();
-            log.info("main(), received results on identifier " + aid);
-
-            Stream.of(event).forEach(e -> {
-                    log.debug("Adding chunk {} to result", e);
-                    result.add((TempResult) e.getData());
-                }
-            );
-
-            overallTimer.stop(timing);
-
-            log.info("Done with stencil of size {} x {} after {} iteration(s) and {} ms", result.height(),
-                result.width(), result.getIteration(), overallTimer.totalTimeVal() / 1000);
-            writeFile(result.getIteration(), minDifference, result.width(), result.height(),
-                overallTimer.totalTimeVal() / 1000, result);
-        }
-
-        cons.done();
-        log.debug("called Constellation.done()");
+      log.info("Done with stencil of size {} x {} after {} iteration(s) and {} ms", result.height(),
+          result.width(), result.getIteration(), overallTimer.totalTimeVal() / 1000);
+      writeFile(result.getIteration(), minDifference, result.width(), result.height(),
+          overallTimer.totalTimeVal() / 1000, result);
     }
 
-    private static List<StencilActivity> createActivities(ActivityIdentifier parent, CylinderSlice slice, List<String> nodeNames, int activitiesPerNode) {
-        int nrOfActivities = nodeNames.size() * activitiesPerNode;
-        List<StencilActivity> activities = new ArrayList<>(nrOfActivities);
+    cons.done();
+    log.debug("called Constellation.done()");
+  }
 
-        for (int i = 0; i < nrOfActivities; i++) {
-            activities.add(null);
-        }
+  private static List<StencilActivity> createActivities(ActivityIdentifier parent,
+      CylinderSlice slice, List<String> nodeNames, int activitiesPerNode) {
+    int nrOfActivities = nodeNames.size() * activitiesPerNode;
+    List<StencilActivity> activities = new ArrayList<>(nrOfActivities);
 
-        int currentRow = 1;
-        int rows = slice.height() - 1;
-
-        for (int i = 0; i < nrOfActivities; i++) {
-            String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
-            int activitiesLeft = nrOfActivities - i;
-            int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / activitiesLeft);
-
-            CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
-            StencilActivity activity = new StencilActivity(parent, StencilActivity.LABEL + node,
-                nextSlice);
-            activities.set(i, activity);
-
-            currentRow = until;
-            log.info("Created activity for host: {}", node);
-        }
-
-        log.info(activities.toString());
-        return activities;
+    for (int i = 0; i < nrOfActivities; i++) {
+      activities.add(null);
     }
 
-    private static Constellation activateContellation(int nrExecutors)
-        throws ConstellationCreationException {
-        NodeInformation.setHostName();
+    int currentRow = 1;
+    int rows = slice.height() - 1;
 
-        // Create context for the master node
-        OrContext orContext = new OrContext(
-            new Context(StencilActivity.LABEL + NodeInformation.HOSTNAME),    // One for every node
-            new Context(MonitorActivity.LABEL)              // Only one on the master node
-        );
+    for (int i = 0; i < nrOfActivities; i++) {
+      String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
+      int activitiesLeft = nrOfActivities - i;
+      int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / activitiesLeft);
 
-        // Initialize Constellation with the following configurations
-        ConstellationConfiguration config = new ConstellationConfiguration(
-            orContext,
-            StealStrategy.SMALLEST,
-            StealStrategy.BIGGEST,
-            StealStrategy.BIGGEST
-        );
+      CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
+      StencilActivity activity = new StencilActivity(parent, StencilActivity.LABEL + node,
+          nextSlice);
+      activities.set(i, activity);
 
-        Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
-        cons.activate();
-
-        log.info("Activated Constellation for host: {}", NodeInformation.HOSTNAME);
-        return cons;
+      currentRow = until;
+      log.info("Created activity for host: {}", node);
     }
 
-    private static CylinderSlice createCylinder(int height, int width) {
-        HeatValueGenerator heatValueGenerator =
-            new HeatValueGenerator(height, width, 0.0001, 100);
+    log.info(activities.toString());
+    return activities;
+  }
 
-        double[][] temp = heatValueGenerator.getTemp();
-        double[][] cond = heatValueGenerator.getCond();
+  private static Constellation activateContellation(int nrExecutors)
+      throws ConstellationCreationException {
+    NodeInformation.setHostName();
 
-        return Cylinder.of(temp, cond).toSlice();
+    // Create context for the master node
+    OrContext orContext = new OrContext(
+        new Context(StencilActivity.LABEL + NodeInformation.HOSTNAME),    // One for every node
+        new Context(MonitorActivity.LABEL)              // Only one on the master node
+    );
+
+    // Initialize Constellation with the following configurations
+    ConstellationConfiguration config = new ConstellationConfiguration(
+        orContext,
+        StealStrategy.SMALLEST,
+        StealStrategy.BIGGEST,
+        StealStrategy.BIGGEST
+    );
+
+    Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
+    cons.activate();
+
+    log.info("Activated Constellation for host: {}", NodeInformation.HOSTNAME);
+    return cons;
+  }
+
+  private static CylinderSlice createCylinder(int height, int width) {
+    HeatValueGenerator heatValueGenerator =
+        new HeatValueGenerator(height, width, 0.0001, 100);
+
+    double[][] temp = heatValueGenerator.getTemp();
+    double[][] cond = heatValueGenerator.getCond();
+
+    return Cylinder.of(temp, cond).toSlice();
+  }
+
+  private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
+    OrContext orContext = new OrContext(
+        Stream.of(nodes).map(n -> new Context(StencilActivity.LABEL + n)).toArray(Context[]::new));
+    return new MultiEventCollector(orContext, nodes.size() * nrExecutors);
+  }
+
+  private static List<ActivityIdentifier> submitActivities(Constellation cons,
+      List<StencilActivity> activities)
+      throws NoSuitableExecutorException {
+    List<ActivityIdentifier> identifiers = new ArrayList<>();
+
+    for (StencilActivity activity : activities) {
+      ActivityIdentifier submittedActivity = cons.submit(activity);
+      identifiers.add(submittedActivity);
+      log.info("Submitted activity with id: {}", submittedActivity);
     }
 
-    private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
-        Context[] contexts = new Context[nodes.size() * nrExecutors];
+    return identifiers;
+  }
 
-        for (int i = 0; i < contexts.length; i++) {
-            contexts[i] = new Context(StencilActivity.LABEL + nodes.get(
-                (int) Math.floor((double) i / nrExecutors)));
-        }
+  private static ActivityIdentifier createMonitor(
+      Constellation cons,
+      List<ActivityIdentifier> identifiers,
+      int maxIterations,
+      double minDifference
+  ) throws NoSuitableExecutorException {
+    MonitorActivity monitor = new MonitorActivity(
+        maxIterations,
+        minDifference,
+        identifiers
+    );
 
-        OrContext orContext = new OrContext(contexts);
-        return new MultiEventCollector(orContext, nodes.size() * nrExecutors);
-    }
-
-    private static List<ActivityIdentifier> submitActivities(Constellation cons, List<StencilActivity> activities)
-        throws NoSuitableExecutorException {
-        List<ActivityIdentifier> identifiers = new ArrayList<>();
-
-        for (StencilActivity activity : activities) {
-            ActivityIdentifier submittedActivity = cons.submit(activity);
-            identifiers.add(submittedActivity);
-            log.info("Submitted activity with id: {}", submittedActivity);
-        }
-
-        return identifiers;
-    }
-
-    private static ActivityIdentifier createMonitor(
-        Constellation cons,
-        List<ActivityIdentifier> identifiers,
-        int maxIterations,
-        double minDifference
-    ) throws NoSuitableExecutorException {
-        MonitorActivity monitor = new MonitorActivity(
-            maxIterations,
-            minDifference,
-            identifiers
-        );
-
-        return cons.submit(monitor);
-    }
-
+    return cons.submit(monitor);
+  }
 }
