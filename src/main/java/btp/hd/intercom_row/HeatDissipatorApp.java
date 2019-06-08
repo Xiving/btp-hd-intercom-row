@@ -208,9 +208,14 @@ public class HeatDissipatorApp {
 
   private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
     Context[] contexts = new Context[nodes.size()];
+    String node = null;
 
     for (int i = 0; i < contexts.length; i++) {
-      contexts[i] = context(null, null, 1);
+      if (i % nrExecutors == 0) {
+        node = nodes.get((int) Math.floor((double) i / nrExecutors));
+      }
+
+      contexts[i] = context(StencilActivity.LABEL, node, i % nrExecutors);
     }
 
     return new MultiEventCollector(new OrContext(contexts), nodes.size() * nrExecutors);
