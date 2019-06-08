@@ -13,6 +13,7 @@ import ibis.constellation.util.MultiEventCollector;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class HeatDissipatorApp {
         int height = 10;
         int width = 10;
 
-        log.info("Input: {}", args.toString());
+        log.info("Input: {}", Arrays.toString(args));
 
         // overwrite defaults with input arguments
         for (int i = 1; i < args.length; i += 2) {
