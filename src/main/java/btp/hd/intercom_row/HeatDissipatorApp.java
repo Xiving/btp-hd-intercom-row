@@ -151,27 +151,14 @@ public class HeatDissipatorApp {
   private static List<StencilActivity> createActivities(ActivityIdentifier parent,
       CylinderSlice slice, List<String> nodeNames, int activitiesPerNode) {
     int nrOfActivities = nodeNames.size() * activitiesPerNode;
-    List<StencilActivity> activities = new ArrayList<>(nrOfActivities);
-
-    for (int i = 0; i < nrOfActivities; i++) {
-      activities.add(null);
-    }
-
-    int currentRow = 1;
-    int rows = slice.height() - 1;
+    List<CylinderSlice> slices = split(slice, nrOfActivities);
+    List<StencilActivity> activities = new ArrayList<>();
 
     for (int i = 0; i < nrOfActivities; i++) {
       String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
-      int activitiesLeft = nrOfActivities - i;
-      int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / activitiesLeft);
-
-      CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
-      StencilActivity activity = new StencilActivity(parent, StencilActivity.LABEL + node,
-          nextSlice);
-      activities.add(activity);
-
-      currentRow = until;
+      activities.add(new StencilActivity(parent, StencilActivity.LABEL + node, slices.get(i)));
     }
+
     return activities;
   }
 
@@ -232,6 +219,21 @@ public class HeatDissipatorApp {
     }
 
     return identifiers;
+  }
+
+  private static List<CylinderSlice> split(CylinderSlice slice, int amount) {
+    List<CylinderSlice> slices = new ArrayList<>();
+    int currentRow = 1;
+    int rows = slice.height() - 1;
+
+    for (int i = 0; i < amount; i++) {
+      int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / amount - i);
+      CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
+      slices.add(nextSlice);
+      currentRow = until;
+    }
+
+    return slices;
   }
 
   private static ActivityIdentifier createMonitor(
