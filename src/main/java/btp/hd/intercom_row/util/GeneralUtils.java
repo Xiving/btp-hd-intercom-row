@@ -6,7 +6,7 @@ import ibis.constellation.Context;
 
 public class GeneralUtils {
     public static String label(String label, String host, int executor) {
-      return label + "-" + host + "-" + executor;
+      return label + "-" + host; //+ "-" + executor;
     }
 
     public static Context stencilContext(String host, int executor) {
