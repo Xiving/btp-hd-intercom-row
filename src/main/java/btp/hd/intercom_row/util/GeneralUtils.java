@@ -14,7 +14,6 @@ public class GeneralUtils {
     }
 
     public static Context monitorContext(String host) {
-      //return new Context(MonitorActivity.LABEL + "-" + host);
-      return new Context("monitor");
+      return new Context(MonitorActivity.LABEL + "-" + host);
     }
 }
