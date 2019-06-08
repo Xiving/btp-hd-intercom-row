@@ -41,15 +41,13 @@ public class HeatDissipatorApp {
 
     public static void main(String[] args) throws Exception {
 
-        boolean runningOnDas = runningOnDas();
-
         // Default config
         int nrExecutorsPerNode = 1;
         double minDifference = 10;
         int maxIterations = Integer.MAX_VALUE;
         int height = 10;
         int width = 10;
-        int nrNodes = runningOnDas ? poolSize() : 1;
+        int nrNodes = poolSize();
 
         // overwrite defaults with input arguments
         for (int i = 0; i < args.length; i += 2) {
@@ -71,6 +69,7 @@ public class HeatDissipatorApp {
                     break;
                 default:
                     throw new Error("Usage: java HeatDissipatorApp "
+                        + "[ -e <nrOfExecutors> ]"
                         + "[ -d <minDelta> ]"
                         + "[ -m <maxIteration> ]"
                         + "[ -h <height> ]"
@@ -78,8 +77,7 @@ public class HeatDissipatorApp {
             }
         }
 
-        log.info("HeatDissipatorApp, running with dimensions {} x {}:", height, width);
-        Constellation constellation = activateContellation( "name",nrExecutorsPerNode);
+        Constellation constellation = activateContellation(nrExecutorsPerNode);
 
         if (constellation.isMaster()) {
             // This is master specific code.  The rest is going to call
@@ -172,21 +170,20 @@ public class HeatDissipatorApp {
         log.debug("called Constellation.done()");
     }
 
-    private static boolean runningOnDas() {
-        return Objects.nonNull(System.getProperty("ibis.pool.name"));
-    }
-
     private static int poolSize() {
         String ibisPoolSize = System.getProperty("ibis.pool.size");
         return Objects.nonNull(ibisPoolSize)? Integer.parseInt(ibisPoolSize): 1;
     }
 
-    private static Constellation activateContellation(String nodeName, int nrExecutors)
+    private static Constellation activateContellation(int nrExecutors)
         throws ConstellationCreationException {
+        NodeInformation.setHostName();
+
+        System.exit(0);
 
         // Create context for the master node
         OrContext orContext = new OrContext(
-            new Context(StencilOperationActivity.LABEL + nodeName),    // One for every node
+            new Context(StencilOperationActivity.LABEL + NodeInformation.HOSTNAME),    // One for every node
             new Context(MonitorActivity.LABEL)              // Only one on the master node
         );
 
@@ -200,6 +197,8 @@ public class HeatDissipatorApp {
 
         Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
         cons.activate();
+
+        log.info("Activated Constellation for host: {}", NodeInformation.HOSTNAME);
         return cons;
     }
 
