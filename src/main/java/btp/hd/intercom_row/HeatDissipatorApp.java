@@ -23,6 +23,7 @@ import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.OrContext;
+import ibis.constellation.StealStrategy;
 import ibis.constellation.Timer;
 import ibis.constellation.util.MultiEventCollector;
 import java.io.FileNotFoundException;
@@ -51,6 +52,8 @@ public class HeatDissipatorApp {
   }
 
   public static void main(String[] args) throws Exception {
+
+    log.info("Properties: \n{}", System.getProperties().toString());
 
     // Default config
     int nrExecutorsPerNode = 1;
