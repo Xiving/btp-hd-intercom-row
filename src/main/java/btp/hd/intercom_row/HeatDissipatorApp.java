@@ -165,7 +165,6 @@ public class HeatDissipatorApp {
             activities.set(i, activity);
 
             currentRow = until;
-            i++;
         }
 
         log.info(activities.toString());
