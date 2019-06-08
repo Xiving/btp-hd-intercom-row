@@ -54,7 +54,7 @@ public class HeatDissipatorApp {
   public static void main(String[] args) throws Exception {
 
     log.info("Properties: \n{}",
-        System.getProperties().get("ibis.constellation.distributed").toString());
+        System.getProperties().get("ibis.constellation.distributed"));
 
     // Default config
     int nrExecutorsPerNode = 1;
