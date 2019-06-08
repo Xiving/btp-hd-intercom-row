@@ -168,7 +168,7 @@ public class HeatDissipatorApp {
       CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
       StencilActivity activity = new StencilActivity(parent, StencilActivity.LABEL + node,
           nextSlice);
-      activities.set(i, activity);
+      activities.add(activity);
 
       currentRow = until;
     }
