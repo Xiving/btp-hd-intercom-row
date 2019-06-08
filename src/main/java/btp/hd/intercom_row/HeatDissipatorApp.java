@@ -53,9 +53,6 @@ public class HeatDissipatorApp {
 
   public static void main(String[] args) throws Exception {
 
-    log.info("Properties: \n{}",
-        System.getProperties().get("ibis.constellation.distributed"));
-
     // Default config
     int nrExecutorsPerNode = 1;
     double minDifference = 10;
@@ -189,7 +186,7 @@ public class HeatDissipatorApp {
     ConstellationConfiguration config = new ConstellationConfiguration(orContext);
 
     // Todo: remove constant
-    Constellation cons = ConstellationFactory.createConstellation(config, 1); //nrExecutors);
+    Constellation cons = ConstellationFactory.createConstellation(config, 2); //nrExecutors);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
       System.exit(1);
