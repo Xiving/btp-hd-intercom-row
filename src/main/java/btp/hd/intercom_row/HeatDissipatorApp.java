@@ -212,9 +212,13 @@ public class HeatDissipatorApp {
   }
 
   private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
-    OrContext orContext = new OrContext(
-        Stream.of(nodes).map(n -> new Context(StencilActivity.LABEL + n)).toArray(Context[]::new));
-    return new MultiEventCollector(orContext, nodes.size() * nrExecutors);
+    Context[] contexts = new Context[nodes.size()];
+
+    for (int i = 0; i < contexts.length; i++) {
+      contexts[i] = new Context(StencilActivity.LABEL + nodes.get(i));
+    }
+
+    return new MultiEventCollector(new OrContext(contexts), nodes.size() * nrExecutors);
   }
 
   private static List<ActivityIdentifier> submitActivities(Constellation cons,
