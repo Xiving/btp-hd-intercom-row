@@ -1,9 +1,10 @@
 package btp.hd.intercom_row.model;
 
+import java.io.Serializable;
 import lombok.Getter;
 
 @Getter
-public class Cylinder extends HeatChunk {
+public class Cylinder extends HeatChunk implements Serializable {
 
     private Cylinder(double[][] temp, double[][] cond) {
         super(temp, cond);

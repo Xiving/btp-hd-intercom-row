@@ -1,11 +1,12 @@
 package btp.hd.intercom_row.model;
 
+import java.io.Serializable;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
-public class CylinderSlice extends HeatChunk {
+public class CylinderSlice extends HeatChunk implements Serializable {
 
     private static final double DIRECT_CONST = 0.25 * Math.sqrt(2) / (Math.sqrt(2) + 1.0);
     private static final double DIAGONAL_CONST = 0.25 / (Math.sqrt(2) + 1.0);

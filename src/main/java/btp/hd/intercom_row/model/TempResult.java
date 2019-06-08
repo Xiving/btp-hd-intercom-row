@@ -1,11 +1,12 @@
 package btp.hd.intercom_row.model;
 
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Slf4j
-public class TempResult extends TempChunk {
+public class TempResult extends TempChunk implements Serializable {
 
     private final int parentOffset;
 
