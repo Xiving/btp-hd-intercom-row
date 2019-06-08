@@ -155,7 +155,7 @@ public class HeatDissipatorApp {
         int rows = slice.height() - 1;
 
         for (int i = 0; i < nrOfActivities; i++) {
-            String node = nodeNames.get((int) Math.floor(i / activitiesPerNode));
+            String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
             int activitiesLeft = nrOfActivities - i;
             int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / activitiesLeft);
 
@@ -209,7 +209,7 @@ public class HeatDissipatorApp {
 
         for (int i = 0; i < contexts.length; i++) {
             contexts[i] = new Context(StencilActivity.LABEL + nodes.get(
-                (int) Math.floor(i / nrExecutors)));
+                (int) Math.floor((double) i / nrExecutors)));
         }
 
         OrContext orContext = new OrContext(contexts);
