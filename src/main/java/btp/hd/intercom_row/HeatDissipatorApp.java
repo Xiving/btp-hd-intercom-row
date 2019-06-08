@@ -80,7 +80,7 @@ public class HeatDissipatorApp {
             // Acquire heat info
             // todo: from file
             CylinderSlice slice = createCylinder(height, width);
-            MultiEventCollector mec = createCollector(JobSubmission.getNodes());
+            MultiEventCollector mec = createCollector(JobSubmission.getNodes(), nrExecutorsPerNode);
             ActivityIdentifier aid = constellation.submit(mec);
 
             // create activities
@@ -211,14 +211,16 @@ public class HeatDissipatorApp {
         return Cylinder.of(temp, cond).toSlice();
     }
 
-    private static MultiEventCollector createCollector(List<String> nodes) {
-        OrContext orContext = new OrContext(
-            nodes.stream()
-                .map(e -> new Context(StencilActivity.LABEL + e))
-                .toArray(Context[]::new)
-        );
+    private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
+        Context[] contexts = new Context[nodes.size() * nrExecutors];
 
-        return new MultiEventCollector(new Context(StencilActivity.LABEL), nodes.size());
+        for (int i = 0; i < contexts.length; i++) {
+            contexts[i] = new Context(StencilActivity.LABEL + nodes.get(
+                (int) Math.floor(i / nrExecutors)));
+        }
+
+        OrContext orContext = new OrContext(contexts);
+        return new MultiEventCollector(orContext, nodes.size() * nrExecutors);
     }
 
 }
