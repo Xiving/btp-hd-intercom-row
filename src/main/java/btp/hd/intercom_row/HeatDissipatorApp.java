@@ -45,6 +45,8 @@ public class HeatDissipatorApp {
         int height = 10;
         int width = 10;
 
+        log.info("Input: {}", args.toString());
+
         // overwrite defaults with input arguments
         for (int i = 1; i < args.length; i += 2) {
             switch (args[i]) {
