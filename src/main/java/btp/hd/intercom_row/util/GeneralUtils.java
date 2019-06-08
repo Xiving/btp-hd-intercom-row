@@ -10,8 +10,8 @@ public class GeneralUtils {
     }
 
     public static Context stencilContext(String host, int executor) {
-      return new Context(label(StencilActivity.LABEL, host, executor));
-      //return new Context("operation");
+      //return new Context(label(StencilActivity.LABEL, host, executor));
+      return new Context("operation");
     }
 
     public static Context monitorContext(String host) {
