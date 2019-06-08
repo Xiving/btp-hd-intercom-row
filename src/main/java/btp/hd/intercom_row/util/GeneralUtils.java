@@ -1,7 +1,6 @@
 package btp.hd.intercom_row.util;
 
 import btp.hd.intercom_row.Activity.MonitorActivity;
-import btp.hd.intercom_row.Activity.StencilActivity;
 import ibis.constellation.Context;
 
 public class GeneralUtils {
@@ -15,6 +14,7 @@ public class GeneralUtils {
     }
 
     public static Context monitorContext(String host) {
-      return new Context(MonitorActivity.LABEL + "-" + host);
+      //return new Context(MonitorActivity.LABEL + "-" + host);
+      return new Context("monitor");
     }
 }
