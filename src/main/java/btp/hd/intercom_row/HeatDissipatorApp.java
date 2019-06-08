@@ -102,10 +102,12 @@ public class HeatDissipatorApp {
                 JobSubmission.getNodes(),
                 nrExecutorsPerNode
             );
-            // submit activities and create monitor
-            List<ActivityIdentifier> identifiers = submitActivites(cons, activities);
-            ActivityIdentifier monitor = createMonitor(cons, activities, maxIterations, minDifference);
 
+            // submit activities and create monitor
+            List<ActivityIdentifier> identifiers = submitActivities(cons, activities);
+            ActivityIdentifier monitor = createMonitor(cons, identifiers, maxIterations, minDifference);
+
+            // link up activities
             for (int i = 0; i < identifiers.size(); i++) {
                 ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
                 ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
@@ -220,13 +222,14 @@ public class HeatDissipatorApp {
         return new MultiEventCollector(orContext, nodes.size() * nrExecutors);
     }
 
-    private static List<ActivityIdentifier> submitActivites(Constellation cons, List<StencilActivity> activities)
+    private static List<ActivityIdentifier> submitActivities(Constellation cons, List<StencilActivity> activities)
         throws NoSuitableExecutorException {
         List<ActivityIdentifier> identifiers = new ArrayList<>();
 
         for (StencilActivity activity : activities) {
-            identifiers.add(cons.submit(activity));
-            log.info("Submitted activity with id: {}", activity.identifier());
+            ActivityIdentifier submittedActivity = cons.submit(activity);
+            identifiers.add(submittedActivity);
+            log.info("Submitted activity with id: {}", submittedActivity);
         }
 
         return identifiers;
@@ -234,14 +237,14 @@ public class HeatDissipatorApp {
 
     private static ActivityIdentifier createMonitor(
         Constellation cons,
-        List<StencilActivity> activities,
+        List<ActivityIdentifier> identifiers,
         int maxIterations,
         double minDifference
     ) throws NoSuitableExecutorException {
         MonitorActivity monitor = new MonitorActivity(
             maxIterations,
             minDifference,
-            activities.stream().map(Activity::identifier).collect(Collectors.toList())
+            identifiers
         );
 
         return cons.submit(monitor);
