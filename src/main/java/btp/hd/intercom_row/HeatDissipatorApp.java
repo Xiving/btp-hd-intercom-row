@@ -11,7 +11,6 @@ import btp.hd.intercom_row.model.event.StartEvent;
 import btp.hd.intercom_row.util.HeatValueGenerator;
 import btp.hd.intercom_row.util.JobSubmission;
 import btp.hd.intercom_row.util.NodeInformation;
-import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.ConstellationConfiguration;
@@ -28,7 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
@@ -182,7 +180,10 @@ public class HeatDissipatorApp {
     );
 
     Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
-    cons.activate();
+    if (!cons.activate()) {
+      log.error("Constellation could not be activated!");
+      System.exit(1);
+    }
 
     log.info("Activated Constellation for host: {}", NodeInformation.HOSTNAME);
     return cons;
