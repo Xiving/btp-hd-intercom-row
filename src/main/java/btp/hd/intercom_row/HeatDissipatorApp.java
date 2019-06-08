@@ -210,7 +210,7 @@ public class HeatDissipatorApp {
     Context[] contexts = new Context[nodes.size()];
 
     for (int i = 0; i < contexts.length; i++) {
-      contexts[i] = new Context(StencilActivity.LABEL + nodes.get(i));
+      contexts[i] = context(null, null, 1);
     }
 
     return new MultiEventCollector(new OrContext(contexts), nodes.size() * nrExecutors);
