@@ -1,5 +1,7 @@
 package btp.hd.intercom_row.Activity;
 
+import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
+
 import btp.hd.intercom_row.model.event.MonitorDelta;
 import btp.hd.intercom_row.model.event.MonitorUpdate;
 import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
@@ -34,7 +36,7 @@ public class MonitorActivity extends Activity implements Serializable {
         double minDelta,
         List<ActivityIdentifier> recipients
     ) {
-        super(new Context(LABEL + "-" + host), EXPECT_EVENTS);
+        super(monitorContext(host), EXPECT_EVENTS);
         this.maxIterations = maxIterations;
         this.minDelta = minDelta;
         this.recipients = recipients;
