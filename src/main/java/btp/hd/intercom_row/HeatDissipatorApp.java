@@ -179,7 +179,7 @@ public class HeatDissipatorApp {
         StealStrategy.BIGGEST
     );
 
-    Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
+    Constellation cons = ConstellationFactory.createConstellation(config, 1);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
       System.exit(1);
