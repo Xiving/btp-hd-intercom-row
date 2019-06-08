@@ -112,7 +112,7 @@ public class HeatDissipatorApp {
         ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
         ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
         InitEvent event = new InitEvent(upper, lower, monitor);
-        log.info("Sending init event: {}", event.toString());
+        log.info("Sending init event: {}, to: {}", event.toString(), identifiers.get(i));
         cons.send(new Event(aid, identifiers.get(i), event));
       }
 

@@ -104,8 +104,10 @@ public class MonitorActivity extends Activity {
     private void broadcastNextIteration(Constellation cons) {
         currentIteration++;
         recipients.forEach(
-            r -> cons.send(
-                new Event(identifier(), r, new MonitorUpdate(Status.CONTINUE, currentIteration)))
+            r -> {
+                log.info("Sending {} monitor update", r);
+                cons.send(new Event(identifier(), r, new MonitorUpdate(Status.CONTINUE, currentIteration)));
+            }
         );
 
         log.info("Broadcast next iteration: {}", currentIteration);
