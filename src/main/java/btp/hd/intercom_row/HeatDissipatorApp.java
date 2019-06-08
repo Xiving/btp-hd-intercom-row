@@ -183,12 +183,7 @@ public class HeatDissipatorApp {
     OrContext orContext = new OrContext(contexts);
 
     // Initialize Constellation with the following configurations
-    ConstellationConfiguration config = new ConstellationConfiguration(
-        orContext,
-        StealStrategy.BIGGEST,
-        StealStrategy.BIGGEST,
-        StealStrategy.BIGGEST
-    );
+    ConstellationConfiguration config = new ConstellationConfiguration(orContext);
 
     Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
     if (!cons.activate()) {
