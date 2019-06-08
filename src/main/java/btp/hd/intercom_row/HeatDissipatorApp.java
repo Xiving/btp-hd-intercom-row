@@ -49,7 +49,7 @@ public class HeatDissipatorApp {
         log.info("Input: {}", Arrays.toString(args));
 
         // overwrite defaults with input arguments
-        for (int i = 1; i < args.length; i += 2) {
+        for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-e":
                     nrExecutorsPerNode = Integer.parseInt(args[i + 1]);
@@ -74,6 +74,7 @@ public class HeatDissipatorApp {
                         + "[ -h <height> ]"
                         + "[ -w <width> ]");
             }
+            i++;
         }
 
         Constellation constellation = activateContellation(nrExecutorsPerNode);
