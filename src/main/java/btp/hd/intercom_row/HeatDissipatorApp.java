@@ -155,9 +155,11 @@ public class HeatDissipatorApp {
 
     for (int i = 0; i < nrOfActivities; i++) {
       String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
+      log.debug("Creating activity for {}", node);
       activities.add(new StencilActivity(parent, StencilActivity.LABEL + node, slices.get(i)));
     }
 
+    log.debug(activities.toString());
     return activities;
   }
 
@@ -179,7 +181,7 @@ public class HeatDissipatorApp {
         StealStrategy.BIGGEST
     );
 
-    Constellation cons = ConstellationFactory.createConstellation(config, 1);
+    Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
       System.exit(1);
