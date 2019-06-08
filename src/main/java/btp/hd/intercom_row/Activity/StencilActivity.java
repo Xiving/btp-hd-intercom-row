@@ -52,7 +52,7 @@ public class StencilActivity extends Activity {
         this.topRows = new HashMap<>();
         this.botRows = new HashMap<>();
 
-        log.info("Created '{}' activity with size {} x {}", LABEL, slice.height() - 2, slice.width() - 2);
+        log.info("Created '{}' activity with size {} x {}", label, slice.height() - 2, slice.width() - 2);
     }
 
     public void init(ActivityIdentifier upper, ActivityIdentifier lower, ActivityIdentifier monitor) {

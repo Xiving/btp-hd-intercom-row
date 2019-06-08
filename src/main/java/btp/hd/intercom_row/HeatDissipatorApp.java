@@ -168,6 +168,7 @@ public class HeatDissipatorApp {
             i++;
         }
 
+        log.info(activities.toString());
         return activities;
     }
 
