@@ -94,6 +94,7 @@ public class HeatDissipatorApp {
             // submit activities
             for (StencilActivity activity : activities) {
                 constellation.submit(activity);
+                log.info("Submitted activity with id: {}", activity.identifier());
             }
 
             MonitorActivity monitor = new MonitorActivity(
@@ -132,9 +133,8 @@ public class HeatDissipatorApp {
 
             overallTimer.stop(timing);
 
-            log.info("Result of size {} x {} after {} iteration(s) and {} ms:\n{}", result.height(),
-                result.width(), result.getIteration(), overallTimer.totalTimeVal() / 1000,
-                result.toString());
+            log.info("Done with stencil of size {} x {} after {} iteration(s) and {} ms", result.height(),
+                result.width(), result.getIteration(), overallTimer.totalTimeVal() / 1000);
             writeFile(result.getIteration(), minDifference, result.width(), result.height(),
                 overallTimer.totalTimeVal() / 1000, result);
         }
@@ -166,6 +166,8 @@ public class HeatDissipatorApp {
 
             currentRow = until;
         }
+
+        log.info(activities.toString());
         return activities;
     }
 
