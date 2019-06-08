@@ -1,7 +1,7 @@
 package btp.hd.intercom_row;
 
 import btp.hd.intercom_row.Activity.MonitorActivity;
-import btp.hd.intercom_row.Activity.StencilOperationActivity;
+import btp.hd.intercom_row.Activity.StencilActivity;
 import btp.hd.intercom_row.model.*;
 import btp.hd.intercom_row.model.event.StartEvent;
 import btp.hd.intercom_row.util.HeatValueGenerator;
@@ -12,14 +12,11 @@ import ibis.constellation.util.MultiEventCollector;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -80,60 +77,36 @@ public class HeatDissipatorApp {
         Constellation constellation = activateContellation(nrExecutorsPerNode);
 
         if (constellation.isMaster()) {
-            // This is master specific code.  The rest is going to call
-            // Constellation.done(), waiting for Activities to steal.
+            // Acquire heat info
+            // todo: from file
             CylinderSlice slice = createCylinder(height, width);
             MultiEventCollector mec = createCollector(JobSubmission.getNodes());
             ActivityIdentifier aid = constellation.submit(mec);
 
-            log.info("Performing stencil operations on:\n{}", slice.getResult().toString());
+            // create activities
+            List<StencilActivity> activities = createActivities(
+                aid,
+                slice,
+                JobSubmission.getNodes(),
+                nrExecutorsPerNode
+            );
 
-            List<String> nodeNames = JobSubmission.getNodes();
-            List<StencilOperationActivity> activities = new ArrayList<>(nrNodes + 2);
-
-            activities.add(null);
-
-            int currentY = 1;
-            int rowsLeft = slice.height() - 2;
-
-
-            //Fixme : this shit
-
-            for (int i = 0; i < nrNodes; i++) {
-                int chunksLeft = nrNodes - i;
-                int until = currentY + (int) Math.ceil(((double) rowsLeft) / chunksLeft);
-
-                log.info("from: {}", currentY - 1);
-                log.info("until: {}", until + 1);
-
-                CylinderSlice nextSlice = CylinderSlice.of(slice, currentY - 1, until + 1);
-                StencilOperationActivity activity = new StencilOperationActivity(aid, nextSlice);
-                activities.add(i + 1, activity);
-                i++;
-
-                currentY = until;
-            }
-
-            for (StencilOperationActivity activity : activities) {
-                if (Objects.nonNull(activity)) {
-                    constellation.submit(activity);
-                }
+            // submit activities
+            for (StencilActivity activity : activities) {
+                constellation.submit(activity);
             }
 
             MonitorActivity monitor = new MonitorActivity(
                 maxIterations,
                 minDifference,
-                activities.stream().filter(Objects::nonNull).map(Activity::identifier)
-                    .collect(Collectors.toList())
+                activities.stream().map(Activity::identifier).collect(Collectors.toList())
             );
 
             constellation.submit(monitor);
 
-            for (int i = 1; i < (nrNodes + 1); i++) {
-                ActivityIdentifier upper = (i == 1) ? null : activities.get(i - 1).identifier();
-                ActivityIdentifier lower =
-                    (i == nrNodes) ? null : activities.get(i + 1).identifier();
-
+            for (int i = 0; i < activities.size(); i++) {
+                ActivityIdentifier upper = (i == 0) ? null : activities.get(i - 1).identifier();
+                ActivityIdentifier lower = (i == activities.size() - 1) ? null : activities.get(i + 1).identifier();
                 activities.get(i).init(upper, lower, monitor.identifier());
             }
 
@@ -170,22 +143,42 @@ public class HeatDissipatorApp {
         log.debug("called Constellation.done()");
     }
 
+    private static List<StencilActivity> createActivities(ActivityIdentifier parent, CylinderSlice slice, List<String> nodeNames, int activitiesPerNode) {
+        int nrOfActivities = nodeNames.size() * activitiesPerNode;
+        List<StencilActivity> activities = new ArrayList<>(nrOfActivities);
+
+        int currentRow = 1;
+        int rows = slice.height() - 2;
+
+        for (int i = 0; i < nrOfActivities; i++) {
+            String node = nodeNames.get((int) Math.floor(i / activitiesPerNode));
+            int activitiesLeft = nrOfActivities - i;
+            int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / activitiesLeft);
+
+            CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
+            StencilActivity activity = new StencilActivity(parent, StencilActivity.LABEL + node,
+                nextSlice);
+            activities.add(i, activity);
+
+            currentRow = until;
+            i++;
+        }
+
+        return activities;
+    }
+
     private static int poolSize() {
         String ibisPoolSize = System.getProperty("ibis.pool.size");
-        return Objects.nonNull(ibisPoolSize)? Integer.parseInt(ibisPoolSize): 1;
+        return Objects.nonNull(ibisPoolSize) ? Integer.parseInt(ibisPoolSize) : 1;
     }
 
     private static Constellation activateContellation(int nrExecutors)
         throws ConstellationCreationException {
         NodeInformation.setHostName();
 
-        log.info("Hostname: {}", NodeInformation.HOSTNAME);
-
-        System.exit(0);
-
         // Create context for the master node
         OrContext orContext = new OrContext(
-            new Context(StencilOperationActivity.LABEL + NodeInformation.HOSTNAME),    // One for every node
+            new Context(StencilActivity.LABEL + NodeInformation.HOSTNAME),    // One for every node
             new Context(MonitorActivity.LABEL)              // Only one on the master node
         );
 
@@ -217,11 +210,11 @@ public class HeatDissipatorApp {
     private static MultiEventCollector createCollector(List<String> nodes) {
         OrContext orContext = new OrContext(
             nodes.stream()
-                .map(e -> new Context(StencilOperationActivity.LABEL + e))
+                .map(e -> new Context(StencilActivity.LABEL + e))
                 .toArray(Context[]::new)
         );
 
-        return new MultiEventCollector(new Context(StencilOperationActivity.LABEL), nodes.size());
+        return new MultiEventCollector(new Context(StencilActivity.LABEL), nodes.size());
     }
 
 }

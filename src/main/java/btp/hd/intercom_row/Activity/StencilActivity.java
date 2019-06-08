@@ -17,7 +17,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StencilOperationActivity extends Activity {
+public class StencilActivity extends Activity {
 
     public static final String LABEL = "stencilOperation";
 
@@ -36,11 +36,12 @@ public class StencilOperationActivity extends Activity {
     private HashMap<Integer, TempRow> topRows;
     private HashMap<Integer, TempRow> botRows;
 
-    public StencilOperationActivity(
+    public StencilActivity(
         ActivityIdentifier parent,
+        String label,
         CylinderSlice slice
     ) {
-        super(new Context(LABEL), EXPECT_EVENTS);
+        super(new Context(label), EXPECT_EVENTS);
 
         this.parent = parent;
         this.slice = slice;
