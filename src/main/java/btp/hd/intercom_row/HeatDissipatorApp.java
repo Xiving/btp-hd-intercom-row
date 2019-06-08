@@ -107,6 +107,8 @@ public class HeatDissipatorApp {
       List<ActivityIdentifier> identifiers = submitActivities(cons, activities);
       ActivityIdentifier monitor = createMonitor(cons, identifiers, maxIterations, minDifference);
 
+      log.info(identifiers.toString());
+
       // link up activities
       for (int i = 0; i < identifiers.size(); i++) {
         ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
