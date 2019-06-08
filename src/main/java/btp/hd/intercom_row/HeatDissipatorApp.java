@@ -227,7 +227,7 @@ public class HeatDissipatorApp {
     int rows = slice.height() - 1;
 
     for (int i = 0; i < amount; i++) {
-      int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / amount - i);
+      int until = currentRow + (int) Math.ceil(((double) rows - currentRow) / (amount - i));
       CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
       slices.add(nextSlice);
       currentRow = until;
