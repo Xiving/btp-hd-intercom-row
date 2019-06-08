@@ -152,7 +152,7 @@ public class HeatDissipatorApp {
         }
 
         int currentRow = 1;
-        int rows = slice.height() - 2;
+        int rows = slice.height() - 1;
 
         for (int i = 0; i < nrOfActivities; i++) {
             String node = nodeNames.get((int) Math.floor(i / activitiesPerNode));
@@ -166,8 +166,6 @@ public class HeatDissipatorApp {
 
             currentRow = until;
         }
-
-        log.info(activities.toString());
         return activities;
     }
 
