@@ -1,6 +1,6 @@
 package btp.hd.intercom_row.Activity;
 
-import static btp.hd.intercom_row.util.GeneralUtils.context;
+import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
 
 import btp.hd.intercom_row.model.CylinderSlice;
 import btp.hd.intercom_row.model.TempResult;
@@ -12,7 +12,6 @@ import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.Timer;
 import java.io.Serializable;
@@ -46,7 +45,7 @@ public class StencilActivity extends Activity implements Serializable {
         int executor,
         CylinderSlice slice
     ) {
-        super(context(LABEL, host, executor), EXPECT_EVENTS);
+        super(stencilContext(host, executor), EXPECT_EVENTS);
 
         this.parent = parent;
         this.slice = slice;

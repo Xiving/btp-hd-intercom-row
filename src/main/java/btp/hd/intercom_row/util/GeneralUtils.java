@@ -1,6 +1,7 @@
 package btp.hd.intercom_row.util;
 
 import btp.hd.intercom_row.Activity.MonitorActivity;
+import btp.hd.intercom_row.Activity.StencilActivity;
 import ibis.constellation.Context;
 
 public class GeneralUtils {
@@ -8,8 +9,8 @@ public class GeneralUtils {
       return label + "-" + host + "-" + executor;
     }
 
-    public static Context context(String label, String host, int executor) {
-      return new Context(label(label, host, executor));
+    public static Context stencilContext(String host, int executor) {
+      return new Context(label(StencilActivity.LABEL, host, executor));
       //return new Context("operation");
     }
 

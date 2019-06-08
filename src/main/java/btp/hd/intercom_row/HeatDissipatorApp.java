@@ -1,7 +1,7 @@
 package btp.hd.intercom_row;
 
-import static btp.hd.intercom_row.util.GeneralUtils.context;
 import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
+import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
 
 import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
@@ -23,7 +23,6 @@ import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.NoSuitableExecutorException;
 import ibis.constellation.OrContext;
-import ibis.constellation.StealStrategy;
 import ibis.constellation.Timer;
 import ibis.constellation.util.MultiEventCollector;
 import java.io.FileNotFoundException;
@@ -174,7 +173,7 @@ public class HeatDissipatorApp {
     Context[] contexts = new Context[nrExecutors + 1];
 
     IntStream.range(0, nrExecutors).forEach(
-        i -> contexts[i] = context(StencilActivity.LABEL, host, i)
+        i -> contexts[i] = stencilContext(host, i)
     );
 
     contexts[contexts.length - 1] = monitorContext(host);
@@ -215,7 +214,7 @@ public class HeatDissipatorApp {
         node = nodes.get((int) Math.floor((double) i / nrExecutors));
       }
 
-      contexts[i] = context(StencilActivity.LABEL, node, i % nrExecutors);
+      contexts[i] = stencilContext(node, i % nrExecutors);
     }
 
     return new MultiEventCollector(new OrContext(contexts), nodes.size() * nrExecutors);
