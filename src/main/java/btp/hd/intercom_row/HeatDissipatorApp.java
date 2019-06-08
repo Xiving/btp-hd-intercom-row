@@ -165,6 +165,7 @@ public class HeatDissipatorApp {
             activities.set(i, activity);
 
             currentRow = until;
+            log.info("Created activity for host: {}", node);
         }
 
         log.info(activities.toString());
