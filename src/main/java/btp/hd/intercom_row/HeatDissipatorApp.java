@@ -2,20 +2,32 @@ package btp.hd.intercom_row;
 
 import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
-import btp.hd.intercom_row.model.*;
+import btp.hd.intercom_row.model.Cylinder;
+import btp.hd.intercom_row.model.CylinderSlice;
+import btp.hd.intercom_row.model.TempChunk;
+import btp.hd.intercom_row.model.TempResult;
+import btp.hd.intercom_row.model.event.InitEvent;
 import btp.hd.intercom_row.model.event.StartEvent;
 import btp.hd.intercom_row.util.HeatValueGenerator;
 import btp.hd.intercom_row.util.JobSubmission;
 import btp.hd.intercom_row.util.NodeInformation;
-import ibis.constellation.*;
+import ibis.constellation.Activity;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationConfiguration;
+import ibis.constellation.ConstellationCreationException;
+import ibis.constellation.ConstellationFactory;
+import ibis.constellation.Context;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
+import ibis.constellation.OrContext;
+import ibis.constellation.StealStrategy;
+import ibis.constellation.Timer;
 import ibis.constellation.util.MultiEventCollector;
-
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -74,14 +86,14 @@ public class HeatDissipatorApp {
             }
         }
 
-        Constellation constellation = activateContellation(nrExecutorsPerNode);
+        Constellation cons = activateContellation(nrExecutorsPerNode);
 
-        if (constellation.isMaster()) {
+        if (cons.isMaster()) {
             // Acquire heat info
             // todo: from file
             CylinderSlice slice = createCylinder(height, width);
             MultiEventCollector mec = createCollector(JobSubmission.getNodes(), nrExecutorsPerNode);
-            ActivityIdentifier aid = constellation.submit(mec);
+            ActivityIdentifier aid = cons.submit(mec);
 
             // create activities
             List<StencilActivity> activities = createActivities(
@@ -90,31 +102,20 @@ public class HeatDissipatorApp {
                 JobSubmission.getNodes(),
                 nrExecutorsPerNode
             );
+            // submit activities and create monitor
+            List<ActivityIdentifier> identifiers = submitActivites(cons, activities);
+            ActivityIdentifier monitor = createMonitor(cons, activities, maxIterations, minDifference);
 
-            // submit activities
-            for (StencilActivity activity : activities) {
-                constellation.submit(activity);
-                log.info("Submitted activity with id: {}", activity.identifier());
+            for (int i = 0; i < identifiers.size(); i++) {
+                ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
+                ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
+                cons.send(new Event(aid, identifiers.get(i), new InitEvent(upper, lower, monitor)));
             }
 
-            MonitorActivity monitor = new MonitorActivity(
-                maxIterations,
-                minDifference,
-                activities.stream().map(Activity::identifier).collect(Collectors.toList())
-            );
-
-            constellation.submit(monitor);
-
-            for (int i = 0; i < activities.size(); i++) {
-                ActivityIdentifier upper = (i == 0) ? null : activities.get(i - 1).identifier();
-                ActivityIdentifier lower = (i == activities.size() - 1) ? null : activities.get(i + 1).identifier();
-                activities.get(i).init(upper, lower, monitor.identifier());
-            }
-
-            Timer overallTimer = constellation.getOverallTimer();
+            Timer overallTimer = cons.getOverallTimer();
             int timing = overallTimer.start();
 
-            constellation.send(new Event(aid, monitor.identifier(), new StartEvent()));
+            cons.send(new Event(aid, monitor, new StartEvent()));
 
             log.debug(
                 "main(), just submitted, about to waitForEvent() for any event with target "
@@ -139,7 +140,7 @@ public class HeatDissipatorApp {
                 overallTimer.totalTimeVal() / 1000, result);
         }
 
-        constellation.done();
+        cons.done();
         log.debug("called Constellation.done()");
     }
 
@@ -217,6 +218,33 @@ public class HeatDissipatorApp {
 
         OrContext orContext = new OrContext(contexts);
         return new MultiEventCollector(orContext, nodes.size() * nrExecutors);
+    }
+
+    private static List<ActivityIdentifier> submitActivites(Constellation cons, List<StencilActivity> activities)
+        throws NoSuitableExecutorException {
+        List<ActivityIdentifier> identifiers = new ArrayList<>();
+
+        for (StencilActivity activity : activities) {
+            identifiers.add(cons.submit(activity));
+            log.info("Submitted activity with id: {}", activity.identifier());
+        }
+
+        return identifiers;
+    }
+
+    private static ActivityIdentifier createMonitor(
+        Constellation cons,
+        List<StencilActivity> activities,
+        int maxIterations,
+        double minDifference
+    ) throws NoSuitableExecutorException {
+        MonitorActivity monitor = new MonitorActivity(
+            maxIterations,
+            minDifference,
+            activities.stream().map(Activity::identifier).collect(Collectors.toList())
+        );
+
+        return cons.submit(monitor);
     }
 
 }

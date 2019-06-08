@@ -3,6 +3,7 @@ package btp.hd.intercom_row.Activity;
 import btp.hd.intercom_row.model.CylinderSlice;
 import btp.hd.intercom_row.model.TempResult;
 import btp.hd.intercom_row.model.TempRow;
+import btp.hd.intercom_row.model.event.InitEvent;
 import btp.hd.intercom_row.model.event.MonitorDelta;
 import btp.hd.intercom_row.model.event.MonitorUpdate;
 import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
@@ -55,7 +56,7 @@ public class StencilActivity extends Activity {
         log.info("Created '{}' activity with size {} x {}", label, slice.height() - 2, slice.width() - 2);
     }
 
-    public void init(ActivityIdentifier upper, ActivityIdentifier lower, ActivityIdentifier monitor) {
+    private void init(ActivityIdentifier upper, ActivityIdentifier lower, ActivityIdentifier monitor) {
         upperActivity = upper;
         lowerActivity = lower;
         monitorActivity = monitor;
@@ -71,7 +72,11 @@ public class StencilActivity extends Activity {
         log.debug("Process event: {}", event.toString());
         Object o = event.getData();
 
-        if (o instanceof TempRow) {
+        if (o instanceof InitEvent) {
+            InitEvent e = (InitEvent) o;
+            init(e.getUpper(), e.getLower(), e.getMonitor());
+            return SUSPEND;
+        } else if (o instanceof TempRow) {
             TempRow row = (TempRow) o;
 
             if (event.getSource().equals(upperActivity)) {
