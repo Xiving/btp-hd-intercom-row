@@ -147,6 +147,10 @@ public class HeatDissipatorApp {
         int nrOfActivities = nodeNames.size() * activitiesPerNode;
         List<StencilActivity> activities = new ArrayList<>(nrOfActivities);
 
+        for (int i = 0; i < nrOfActivities; i++) {
+            activities.add(null);
+        }
+
         int currentRow = 1;
         int rows = slice.height() - 2;
 
@@ -158,7 +162,7 @@ public class HeatDissipatorApp {
             CylinderSlice nextSlice = CylinderSlice.of(slice, currentRow - 1, until + 1);
             StencilActivity activity = new StencilActivity(parent, StencilActivity.LABEL + node,
                 nextSlice);
-            activities.add(activity);
+            activities.set(i, activity);
 
             currentRow = until;
             i++;
