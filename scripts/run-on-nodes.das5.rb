@@ -14,7 +14,7 @@ command = "prun -np #{$nrNodes} " +
     "-Dibis.server.address=fs0.das5.cs.vu.nl " +
     "-Dibis.constellation.closed=true " +
     "-Dibis.pool.size=#{$nrNodes} -Dibis.server.port=#{$port} " +
-    "-Dibis.constellation.distributed=true "
+    "-Dibis.constellation.distributed=true " +
     "-Dibis.pool.name=das5.#{$$} #{$configargs} #{$classname} #{$rest.join(" ")}\n"
 
 # print command
