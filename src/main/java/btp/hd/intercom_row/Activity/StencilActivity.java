@@ -105,7 +105,7 @@ public class StencilActivity extends Activity implements Serializable {
 
     @Override
     public void cleanup(Constellation cons) {
-        log.debug("Sending and event to my parent");
+        log.debug("Sending results to: {}", parent);
         cons.send(new Event(identifier(), parent, slice.getResult()));
     }
 
