@@ -179,6 +179,8 @@ public class HeatDissipatorApp {
         throws ConstellationCreationException {
         NodeInformation.setHostName();
 
+        log.info("Hostname: {}", NodeInformation.HOSTNAME);
+
         System.exit(0);
 
         // Create context for the master node
