@@ -184,7 +184,7 @@ public class HeatDissipatorApp {
     // Initialize Constellation with the following configurations
     ConstellationConfiguration config = new ConstellationConfiguration(
         orContext,
-        StealStrategy.SMALLEST,
+        StealStrategy.BIGGEST,
         StealStrategy.BIGGEST,
         StealStrategy.BIGGEST
     );
