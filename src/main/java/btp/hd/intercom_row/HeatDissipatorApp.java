@@ -244,6 +244,8 @@ public class HeatDissipatorApp {
         identifiers
     );
 
-    return cons.submit(monitor);
+    ActivityIdentifier identifier = cons.submit(monitor);
+    log.info("Submitted monitor with id: {}", identifier);
+    return identifier;
   }
 }
