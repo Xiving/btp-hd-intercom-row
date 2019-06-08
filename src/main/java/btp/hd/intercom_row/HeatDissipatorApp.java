@@ -119,6 +119,7 @@ public class HeatDissipatorApp {
       Timer overallTimer = cons.getOverallTimer();
       int timing = overallTimer.start();
 
+      log.info("Sending start event");
       cons.send(new Event(aid, monitor, new StartEvent()));
 
       log.debug(

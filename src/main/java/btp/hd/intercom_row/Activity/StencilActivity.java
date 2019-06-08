@@ -153,14 +153,17 @@ public class StencilActivity extends Activity {
 
     private void sendUpdates(Constellation cons) {
         if (Objects.nonNull(upperActivity)) {
+            log.info("Sending top row from: {} to: {}", identifier(), upperActivity);
             cons.send(new Event(identifier(), upperActivity, slice.getTop()));
         }
 
         if (Objects.nonNull(lowerActivity)) {
+            log.info("Sending top row from: {} to: {}", identifier(), lowerActivity);
             cons.send(new Event(identifier(), lowerActivity, slice.getBot()));
         }
 
         if (!finished) {
+            log.info("Sending update to monitor;");
             cons.send(new Event(identifier(), monitorActivity, new MonitorDelta(slice.getIteration(), slice.getMaxDelta())));
         }
     }
