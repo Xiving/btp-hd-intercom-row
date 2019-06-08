@@ -1,5 +1,7 @@
 package btp.hd.intercom_row.Activity;
 
+import static btp.hd.intercom_row.util.GeneralUtils.context;
+
 import btp.hd.intercom_row.model.CylinderSlice;
 import btp.hd.intercom_row.model.TempResult;
 import btp.hd.intercom_row.model.TempRow;
@@ -39,10 +41,11 @@ public class StencilActivity extends Activity {
 
     public StencilActivity(
         ActivityIdentifier parent,
-        String label,
+        String host,
+        int executor,
         CylinderSlice slice
     ) {
-        super(new Context(label), EXPECT_EVENTS);
+        super(context(LABEL, host, executor), EXPECT_EVENTS);
 
         this.parent = parent;
         this.slice = slice;
@@ -53,7 +56,7 @@ public class StencilActivity extends Activity {
         this.topRows = new HashMap<>();
         this.botRows = new HashMap<>();
 
-        log.info("Created '{}' activity with size {} x {}", label, slice.height() - 2, slice.width() - 2);
+        log.info("Created '{}' activity for host: {}, executor: {} and with size {} x {}", LABEL, host, executor, slice.height() - 2, slice.width() - 2);
     }
 
     private void init(ActivityIdentifier upper, ActivityIdentifier lower, ActivityIdentifier monitor) {

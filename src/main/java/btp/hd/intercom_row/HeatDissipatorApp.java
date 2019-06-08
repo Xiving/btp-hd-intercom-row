@@ -1,5 +1,7 @@
 package btp.hd.intercom_row;
 
+import static btp.hd.intercom_row.util.GeneralUtils.context;
+
 import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
 import btp.hd.intercom_row.model.Cylinder;
@@ -27,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
@@ -155,23 +158,27 @@ public class HeatDissipatorApp {
 
     for (int i = 0; i < nrOfActivities; i++) {
       String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
-      log.debug("Creating activity for {}", node);
-      activities.add(new StencilActivity(parent, StencilActivity.LABEL + node, slices.get(i)));
+      activities.add(new StencilActivity(parent, node, i, slices.get(i)));
     }
 
-    log.debug(activities.toString());
     return activities;
   }
 
   private static Constellation activateContellation(int nrExecutors)
       throws ConstellationCreationException {
     NodeInformation.setHostName();
+    String host = NodeInformation.HOSTNAME;
+
+    Context[] contexts = new Context[nrExecutors + 1];
+
+    IntStream.range(0, nrExecutors).forEach(
+        i -> contexts[i] = context(StencilActivity.LABEL, host, i)
+    );
+
+    contexts[contexts.length - 1] = new Context(MonitorActivity.LABEL);
 
     // Create context for the master node
-    OrContext orContext = new OrContext(
-        new Context(StencilActivity.LABEL + NodeInformation.HOSTNAME),    // One for every node
-        new Context(MonitorActivity.LABEL)              // Only one on the master node
-    );
+    OrContext orContext = new OrContext(contexts);
 
     // Initialize Constellation with the following configurations
     ConstellationConfiguration config = new ConstellationConfiguration(
