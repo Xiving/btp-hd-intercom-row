@@ -1,6 +1,7 @@
 package btp.hd.intercom_row;
 
 import static btp.hd.intercom_row.util.GeneralUtils.context;
+import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
 
 import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
@@ -175,7 +176,7 @@ public class HeatDissipatorApp {
         i -> contexts[i] = context(StencilActivity.LABEL, host, i)
     );
 
-    contexts[contexts.length - 1] = new Context(MonitorActivity.LABEL);
+    contexts[contexts.length - 1] = monitorContext(host);
 
     // Create context for the master node
     OrContext orContext = new OrContext(contexts);
@@ -254,6 +255,7 @@ public class HeatDissipatorApp {
       double minDifference
   ) throws NoSuitableExecutorException {
     MonitorActivity monitor = new MonitorActivity(
+        NodeInformation.HOSTNAME,
         maxIterations,
         minDifference,
         identifiers

@@ -28,11 +28,12 @@ public class MonitorActivity extends Activity {
     private double maxDelta;
 
     public MonitorActivity(
+        String host,
         int maxIterations,
         double minDelta,
         List<ActivityIdentifier> recipients
     ) {
-        super(new Context(LABEL), EXPECT_EVENTS);
+        super(new Context(LABEL + "-" + host), EXPECT_EVENTS);
         this.maxIterations = maxIterations;
         this.minDelta = minDelta;
         this.recipients = recipients;

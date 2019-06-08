@@ -2,8 +2,10 @@ package btp.hd.intercom_row.model;
 
 import java.io.Serializable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
 public class CylinderSlice extends HeatChunk implements Serializable {
