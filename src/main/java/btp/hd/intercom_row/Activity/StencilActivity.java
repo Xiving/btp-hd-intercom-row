@@ -15,12 +15,13 @@ import ibis.constellation.Constellation;
 import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.Timer;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StencilActivity extends Activity {
+public class StencilActivity extends Activity implements Serializable {
 
     public static final String LABEL = "stencilOperation";
 

@@ -9,11 +9,12 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Context;
 import ibis.constellation.Event;
+import java.io.Serializable;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MonitorActivity extends Activity {
+public class MonitorActivity extends Activity implements Serializable {
 
     public static final String LABEL = "monitor";
 
