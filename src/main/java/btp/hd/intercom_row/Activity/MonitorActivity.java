@@ -105,7 +105,7 @@ public class MonitorActivity extends Activity {
         currentIteration++;
         recipients.forEach(
             r -> {
-                log.info("Sending {} monitor update", r);
+                log.debug("Sending {} monitor update", r);
                 cons.send(new Event(identifier(), r, new MonitorUpdate(Status.CONTINUE, currentIteration)));
             }
         );

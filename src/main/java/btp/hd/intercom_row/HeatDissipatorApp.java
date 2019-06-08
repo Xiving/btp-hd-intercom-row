@@ -112,7 +112,7 @@ public class HeatDissipatorApp {
         ActivityIdentifier upper = (i == 0) ? null : identifiers.get(i - 1);
         ActivityIdentifier lower = (i == identifiers.size() - 1) ? null : identifiers.get(i + 1);
         InitEvent event = new InitEvent(upper, lower, monitor);
-        log.info("Sending init event: {}, to: {}", event.toString(), identifiers.get(i));
+        log.debug("Sending init event: {}, to: {}", event.toString(), identifiers.get(i));
         cons.send(new Event(aid, identifiers.get(i), event));
       }
 
@@ -216,7 +216,7 @@ public class HeatDissipatorApp {
     for (StencilActivity activity : activities) {
       ActivityIdentifier submittedActivity = cons.submit(activity);
       identifiers.add(submittedActivity);
-      log.info("Submitted activity with id: {}", submittedActivity);
+      log.debug("Submitted activity with id: {}", submittedActivity);
     }
 
     return identifiers;
@@ -250,7 +250,7 @@ public class HeatDissipatorApp {
     );
 
     ActivityIdentifier identifier = cons.submit(monitor);
-    log.info("Submitted monitor with id: {}", identifier);
+    log.debug("Submitted monitor with id: {}", identifier);
     return identifier;
   }
 }
