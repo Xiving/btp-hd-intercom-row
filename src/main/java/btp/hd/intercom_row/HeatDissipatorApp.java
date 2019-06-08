@@ -158,7 +158,7 @@ public class HeatDissipatorApp {
 
     for (int i = 0; i < nrOfActivities; i++) {
       String node = nodeNames.get((int) Math.floor((double) i / activitiesPerNode));
-      activities.add(new StencilActivity(parent, node, i, slices.get(i)));
+      activities.add(new StencilActivity(parent, node, i % activitiesPerNode, slices.get(i)));
     }
 
     return activities;
