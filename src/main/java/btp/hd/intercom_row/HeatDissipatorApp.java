@@ -44,10 +44,9 @@ public class HeatDissipatorApp {
         int maxIterations = Integer.MAX_VALUE;
         int height = 10;
         int width = 10;
-        int nrNodes = poolSize();
 
         // overwrite defaults with input arguments
-        for (int i = 0; i < args.length; i += 2) {
+        for (int i = 1; i < args.length; i += 2) {
             switch (args[i]) {
                 case "-e":
                     nrExecutorsPerNode = Integer.parseInt(args[i + 1]);
@@ -167,11 +166,6 @@ public class HeatDissipatorApp {
             currentRow = until;
         }
         return activities;
-    }
-
-    private static int poolSize() {
-        String ibisPoolSize = System.getProperty("ibis.pool.size");
-        return Objects.nonNull(ibisPoolSize) ? Integer.parseInt(ibisPoolSize) : 1;
     }
 
     private static Constellation activateContellation(int nrExecutors)
