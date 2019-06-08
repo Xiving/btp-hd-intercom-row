@@ -85,6 +85,7 @@ public class StencilActivity extends Activity {
             if (update.getStatus() == Status.FINISHED) {
                 calcUntilIndex = update.getIteration();
                 finished = true;
+                log.info("Received stop condition: iteration: {}", update.getIteration());
             } else {
                 calcUntilIndex = update.getIteration();
             }
@@ -114,6 +115,7 @@ public class StencilActivity extends Activity {
         }
 
         if (slice.getIteration() == calcUntilIndex && finished) {
+            log.info("Met stop condition!");
             return FINISH;
         }
 
