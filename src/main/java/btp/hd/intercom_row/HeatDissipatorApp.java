@@ -200,7 +200,7 @@ public class HeatDissipatorApp {
     ConstellationConfiguration config = new ConstellationConfiguration(orContext);
 
     // Todo: remove constant
-    Constellation cons = ConstellationFactory.createConstellation(config, 2); //nrExecutors);
+    Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors); //nrExecutors);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
       System.exit(1);
