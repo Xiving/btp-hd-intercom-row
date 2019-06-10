@@ -221,7 +221,7 @@ public class HeatDissipatorApp {
   }
 
   private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
-    Context[] contexts = new Context[nodes.size()];
+    Context[] contexts = new Context[nodes.size() * nrExecutors];
     String node = null;
 
     for (int i = 0; i < contexts.length; i++) {
