@@ -88,6 +88,20 @@ public class HeatDissipatorApp {
       }
     }
 
+    log.info(
+        "Running heat dissipator app with conifg:\n"
+        + "\tHeight: {}\n"
+        + "\tWidth:  {}\n"
+        + "\tMinimum difference: {}\n"
+        + "\tMaximum iterations: {}\n"
+        + "\tNumber of executors per node: {}\n",
+        height,
+        width,
+        minDifference,
+        maxIterations,
+        nrExecutorsPerNode
+    );
+
     Constellation cons = activateContellation(nrExecutorsPerNode);
 
     if (cons.isMaster()) {
