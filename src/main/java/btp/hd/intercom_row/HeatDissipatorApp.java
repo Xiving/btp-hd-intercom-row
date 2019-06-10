@@ -171,16 +171,16 @@ public class HeatDissipatorApp {
     NodeInformation.setHostName();
     String host = NodeInformation.HOSTNAME;
 
-//    Context[] contexts = new Context[nrExecutors + 1];
-//
-//    IntStream.range(0, nrExecutors).forEach(
-//        i -> contexts[i] = stencilContext(host, i)
-//    );
-//
-//    contexts[contexts.length - 1] = monitorContext(host);
+    Context[] contexts = new Context[nrExecutors + 1];
+
+    IntStream.range(0, nrExecutors).forEach(
+        i -> contexts[i] = stencilContext(host, i)
+    );
+
+    contexts[contexts.length - 1] = monitorContext(host);
 
     // Create context for the master node
-    OrContext orContext = new OrContext(stencilContext(host, 1), monitorContext(host));//contexts);
+    OrContext orContext = new OrContext(contexts);//contexts);
 
     // Initialize Constellation with the following configurations
     ConstellationConfiguration config = new ConstellationConfiguration(orContext);
