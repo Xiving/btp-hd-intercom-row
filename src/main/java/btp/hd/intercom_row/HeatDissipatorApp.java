@@ -88,23 +88,23 @@ public class HeatDissipatorApp {
       }
     }
 
-    log.info(
-        "Running heat dissipator app with conifg:\n"
-        + "\tHeight: {}\n"
-        + "\tWidth:  {}\n"
-        + "\tMinimum difference: {}\n"
-        + "\tMaximum iterations: {}\n"
-        + "\tNumber of executors per node: {}\n",
-        height,
-        width,
-        minDifference,
-        maxIterations,
-        nrExecutorsPerNode
-    );
-
     Constellation cons = activateContellation(nrExecutorsPerNode);
 
     if (cons.isMaster()) {
+      log.info(
+          "Running heat dissipator app with conifg:\n"
+              + "\tHeight: {}\n"
+              + "\tWidth:  {}\n"
+              + "\tMinimum difference: {}\n"
+              + "\tMaximum iterations: {}\n"
+              + "\tNumber of executors per node: {}\n",
+          height,
+          width,
+          minDifference,
+          maxIterations,
+          nrExecutorsPerNode
+      );
+
       // Acquire heat info
       // todo: from file
       CylinderSlice slice = createCylinder(height, width);
@@ -199,7 +199,6 @@ public class HeatDissipatorApp {
     // Initialize Constellation with the following configurations
     ConstellationConfiguration config = new ConstellationConfiguration(orContext);
 
-    // Todo: remove constant
     Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors); //nrExecutors);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
