@@ -80,6 +80,11 @@ public class JobSubmission {
     public static List<String> getNodes() {
         List<String> nodes = new ArrayList<String>();
 
+        if(NodeInformation.HOSTNAME == "localhost") {
+            nodes.add(NodeInformation.HOSTNAME);
+            return nodes;
+        }
+
         String inputNodes = System.getenv("SLURM_JOB_NODELIST");
         if (inputNodes == null) {
             parseNodesSGE(nodes);
