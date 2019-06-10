@@ -232,7 +232,7 @@ public class HeatDissipatorApp {
       contexts[i] = stencilContext(node, i % nrExecutors);
     }
 
-    return new MultiEventCollector(new OrContext(contexts), nodes.size() * nrExecutors);
+    return new MultiEventCollector((contexts.length == 1)? contexts[0]: new OrContext(contexts), nodes.size() * nrExecutors);
   }
 
   private static List<ActivityIdentifier> submitActivities(Constellation cons,
