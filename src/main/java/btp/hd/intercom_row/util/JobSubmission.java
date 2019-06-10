@@ -18,6 +18,7 @@ package btp.hd.intercom_row.util;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class JobSubmission {
 
@@ -72,6 +73,9 @@ public class JobSubmission {
 
     static void parseNodesSGE(List<String> nodes) {
         String inputNodes = System.getenv("PRUN_HOSTNAMES");
+
+        if (Objects.isNull(inputNodes)) return;
+
         for (String s : inputNodes.split(" ")) {
             nodes.add(s.substring(0, 7));
         }
