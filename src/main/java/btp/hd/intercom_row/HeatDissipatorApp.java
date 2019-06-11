@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -184,13 +185,9 @@ public class HeatDissipatorApp {
 
     contexts[contexts.length - 1] = monitorContext(host);
 
-    // Create context for the master node
-    OrContext orContext = new OrContext(contexts);//contexts);
+    //Constellation cons = createOrContextConstellation(contexts); //nrExecutors);
+    Constellation cons = createVarArgConstellation(contexts);
 
-    // Initialize Constellation with the following configurations
-    ConstellationConfiguration config = new ConstellationConfiguration(orContext, StealStrategy.BIGGEST);
-
-    Constellation cons = ConstellationFactory.createConstellation(config, nrExecutors); //nrExecutors);
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
       System.exit(1);
@@ -198,6 +195,20 @@ public class HeatDissipatorApp {
 
     log.info("Activated Constellation for host: {}", NodeInformation.HOSTNAME);
     return cons;
+  }
+
+  private static Constellation createOrContextConstellation(Context[] contexts) throws ConstellationCreationException {
+    OrContext orContext = new OrContext(contexts);//contexts);
+    ConstellationConfiguration config = new ConstellationConfiguration(orContext);
+    return ConstellationFactory.createConstellation(config, contexts.length - 1);
+  }
+
+  private static Constellation createVarArgConstellation(Context[] contexts) throws ConstellationCreationException {
+    ConstellationConfiguration[] configs = Stream.of(contexts)
+            .map(ConstellationConfiguration::new)
+            .toArray(ConstellationConfiguration[]::new);
+
+    return ConstellationFactory.createConstellation(configs);
   }
 
   private static CylinderSlice createCylinder(int height, int width) {
