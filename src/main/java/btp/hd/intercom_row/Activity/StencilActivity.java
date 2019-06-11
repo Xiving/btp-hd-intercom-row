@@ -156,12 +156,12 @@ public class StencilActivity extends Activity implements Serializable {
 
     private void sendUpdates(Constellation cons) {
         if (Objects.nonNull(upperActivity)) {
-            log.info("Sending top row from: {} to: {}", identifier(), upperActivity);
+            log.debug("Sending top row from: {} to: {}", identifier(), upperActivity);
             cons.send(new Event(identifier(), upperActivity, slice.getTop()));
         }
 
         if (Objects.nonNull(lowerActivity)) {
-            log.info("Sending top row from: {} to: {}", identifier(), lowerActivity);
+            log.debug("Sending bot row from: {} to: {}", identifier(), lowerActivity);
             cons.send(new Event(identifier(), lowerActivity, slice.getBot()));
         }
 
