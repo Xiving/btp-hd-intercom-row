@@ -18,7 +18,7 @@ public class GeneralUtils {
     }
 
     public static Context monitorContext(String host) {
-        String label = label(MonitorActivity.LABEL, host, 1)
+        String label = label(MonitorActivity.LABEL, host, 1);
         log.info("Creating context with label: {}", label);
         return new Context(label);
     }
