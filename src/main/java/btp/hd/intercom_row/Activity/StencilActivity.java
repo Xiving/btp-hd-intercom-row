@@ -166,7 +166,6 @@ public class StencilActivity extends Activity implements Serializable {
         }
 
         if (!finished) {
-            log.info("Sending update to monitor;");
             cons.send(new Event(identifier(), monitorActivity, new MonitorDelta(slice.getIteration(), slice.getMaxDelta())));
         }
     }
