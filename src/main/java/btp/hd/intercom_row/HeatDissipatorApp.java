@@ -1,8 +1,5 @@
 package btp.hd.intercom_row;
 
-import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
-import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
-
 import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
 import btp.hd.intercom_row.model.Cylinder;
@@ -14,25 +11,19 @@ import btp.hd.intercom_row.model.event.StartEvent;
 import btp.hd.intercom_row.util.HeatValueGenerator;
 import btp.hd.intercom_row.util.JobSubmission;
 import btp.hd.intercom_row.util.NodeInformation;
-import ibis.constellation.ActivityIdentifier;
-import ibis.constellation.Constellation;
-import ibis.constellation.ConstellationConfiguration;
-import ibis.constellation.ConstellationCreationException;
-import ibis.constellation.ConstellationFactory;
-import ibis.constellation.Context;
-import ibis.constellation.Event;
-import ibis.constellation.NoSuitableExecutorException;
-import ibis.constellation.OrContext;
-import ibis.constellation.StealStrategy;
-import ibis.constellation.Timer;
+import ibis.constellation.*;
 import ibis.constellation.util.MultiEventCollector;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import lombok.extern.slf4j.Slf4j;
+
+import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
+import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
 
 @Slf4j
 public class HeatDissipatorApp {
