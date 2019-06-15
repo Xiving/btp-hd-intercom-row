@@ -81,6 +81,8 @@ public class MonitorActivity extends Activity implements Serializable {
 
     @Override
     public void cleanup(Constellation cons) {
+        log.info("Sending finish message!");
+
         recipients.forEach(
             r -> cons.send(
                 new Event(identifier(), r, new MonitorUpdate(Status.FINISHED, currentIteration)))
@@ -94,6 +96,7 @@ public class MonitorActivity extends Activity implements Serializable {
             broadcastNextIteration(cons);
 
             if (currentIteration >= maxIterations) {
+                log.info("Maximum amount of iterations met!");
                 finished = true;
             }
 
@@ -101,7 +104,6 @@ public class MonitorActivity extends Activity implements Serializable {
             maxDelta = 0;
         } else if (deltasReceived >= recipients.size()) {
             if (finished) {
-                log.info("Maximum amount of iterations met!");
                 return FINISH;
             }
 
