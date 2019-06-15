@@ -37,11 +37,12 @@ public class PgmReader {
     log.info("Reading file from dir: {}", fileDir);
 
     BufferedReader br = openBufferedReader(fileName);
-    br.readLine(); // ignore "P2"?
 
+    br.readLine(); // ignore "P2"?
     StringTokenizer dimensions = new StringTokenizer(br.readLine());
     height = Integer.parseInt(dimensions.nextToken());
     width = Integer.parseInt(dimensions.nextToken());
+    br.readLine(); // ignore max heat
 
     matrix = new double[height][width];
 
