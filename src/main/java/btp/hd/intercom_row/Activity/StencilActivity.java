@@ -130,6 +130,7 @@ public class StencilActivity extends Activity implements Serializable {
 
         if (slice.getIteration() == calcUntilIndex && finished) {
             stopWaitTimer();
+            log.info("Met stop condition!");
             return FINISH;
         }
 
@@ -185,6 +186,5 @@ public class StencilActivity extends Activity implements Serializable {
     private void stopWaitTimer() {
         waitTimer.stop(timerId);
         log.debug("Waited {} ms", waitTimer.totalTimeVal());
-        log.info("Met stop condition!");
     }
 }
