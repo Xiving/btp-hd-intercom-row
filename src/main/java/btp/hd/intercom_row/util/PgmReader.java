@@ -1,6 +1,5 @@
 package btp.hd.intercom_row.util;
 
-import btp.hd.intercom_row.model.PgmChunk;
 import java.io.*;
 import java.util.StringTokenizer;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,7 @@ public class PgmReader {
   private static final String TEMP = "plasma";
   private static final String COND = "pat2";
 
-  public static PgmChunk getTempValues(String fileDir, int height, int width) {
+  public static double[][] getTempValues(String fileDir, int height, int width) {
     try {
       return read(fileDir + "/" + TEMP, height, width);
     } catch (IOException e) {
@@ -21,7 +20,7 @@ public class PgmReader {
     return null;
   }
 
-  public static PgmChunk getCondValues(String fileDir, int height, int width) {
+  public static double[][] getCondValues(String fileDir, int height, int width) {
     try {
       return read(fileDir + COND, height, width);
     } catch (IOException e) {
@@ -31,7 +30,7 @@ public class PgmReader {
     return null;
   }
 
-  private static PgmChunk read(String fileDir, int height, int width) throws IOException {
+  private static double[][] read(String fileDir, int height, int width) throws IOException {
     double[][] matrix;
     String fileName = String.format("%s_%dx%d.pgm", fileDir, height, width);
 
@@ -43,7 +42,7 @@ public class PgmReader {
     StringTokenizer dimensions = new StringTokenizer(br.readLine());
     height = Integer.parseInt(dimensions.nextToken());
     width = Integer.parseInt(dimensions.nextToken());
-    Double maxValue = Double.parseDouble(br.readLine()); // ignore max heat
+    double maxValue = Double.parseDouble(br.readLine()); // ignore max heat
 
     int x = 0;
     int y = 0;
@@ -53,7 +52,7 @@ public class PgmReader {
       StringTokenizer row = new StringTokenizer(br.readLine());
 
       while (row.hasMoreTokens()) {
-        matrix[y][x] = Double.parseDouble(row.nextToken());
+        matrix[y][x] = Double.parseDouble(row.nextToken()) / maxValue;
         x++;
 
         if (x == width) {
@@ -63,8 +62,7 @@ public class PgmReader {
       }
     } while (y < height);
 
-    log.info("Max value: {}", maxValue);
-    return new PgmChunk(matrix, maxValue);
+    return matrix;
   }
 
   private static BufferedReader openBufferedReader(String fileName) {
