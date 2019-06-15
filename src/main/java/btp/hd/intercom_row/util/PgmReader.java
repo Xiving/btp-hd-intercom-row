@@ -18,7 +18,7 @@ public class PgmReader {
 
     private static double[][] read(String fileDir, int height, int width) {
         double[][] matrix;
-        String fileName = String.format("{}_{}x{}.pgm", fileDir, height, width);
+        String fileName = String.format("%s_%dx%d.pgm", fileDir, height, width);
 
         BufferedReader br = openBufferedReader(fileName);
 
