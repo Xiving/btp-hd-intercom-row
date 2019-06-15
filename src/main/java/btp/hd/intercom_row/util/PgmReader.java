@@ -12,7 +12,7 @@ public class PgmReader {
 
   public static double[][] getTempValues(String fileDir, int height, int width) {
     try {
-      return read(fileDir + "/" + TEMP, height, width);
+      return read(fileDir + "/" + TEMP, height, width, 100, 100);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -22,7 +22,7 @@ public class PgmReader {
 
   public static double[][] getCondValues(String fileDir, int height, int width) {
     try {
-      return read(fileDir + COND, height, width);
+      return read(fileDir + COND, height, width, 0, 1);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -30,7 +30,7 @@ public class PgmReader {
     return null;
   }
 
-  private static double[][] read(String fileDir, int height, int width) throws IOException {
+  private static double[][] read(String fileDir, int height, int width, int min, int max) throws IOException {
     double[][] matrix;
     String fileName = String.format("%s_%dx%d.pgm", fileDir, height, width);
 
@@ -52,7 +52,7 @@ public class PgmReader {
       StringTokenizer row = new StringTokenizer(br.readLine());
 
       while (row.hasMoreTokens()) {
-        matrix[y][x] = Double.parseDouble(row.nextToken()) / maxValue;
+        matrix[y][x] = min + Double.parseDouble(row.nextToken()) * (max - min) / maxValue;
         x++;
 
         if (x == width) {
