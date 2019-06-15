@@ -1,26 +1,24 @@
 package btp.hd.intercom_row.util;
 
 import java.io.*;
-import java.util.Objects;
 import java.util.StringTokenizer;
 
 public class PgmReader {
 
-    private static final String TEMP_TXT = "temp.txt";
-    private static final String COND_TXT = "cond.txt";
+    private static final String TEMP = "plasma";
+    private static final String COND = "pat2";
 
-    public static double[][] getTempValues() {
-        return read(TEMP_TXT);
+    public static double[][] getTempValues(int height, int width) {
+        return read(TEMP, height, width);
     }
 
-    public static double[][] getCondValues() {
-        return read(COND_TXT);
+    public static double[][] getCondValues(int height, int width) {
+        return read(COND, height, width);
     }
 
-    private static double[][] read(String fileName) {
-        int height = 0;
-        int width = 0;
+    private static double[][] read(String fileDir, int height, int width) {
         double[][] matrix;
+        String fileName = String.format("{}_{}x{}.pgm", fileDir, height, width);
 
         BufferedReader br = openBufferedReader(fileName);
 
