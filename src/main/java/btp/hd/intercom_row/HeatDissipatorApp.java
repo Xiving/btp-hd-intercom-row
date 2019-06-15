@@ -13,6 +13,7 @@ import btp.hd.intercom_row.util.JobSubmission;
 import btp.hd.intercom_row.util.NodeInformation;
 import ibis.constellation.*;
 import ibis.constellation.util.MultiEventCollector;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileNotFoundException;
@@ -46,6 +47,7 @@ public class HeatDissipatorApp {
   public static void main(String[] args) throws Exception {
 
     // Default config
+    String fileDir = null;
     int nrExecutorsPerNode = 1;
     double minDifference = 10;
     int maxIterations = Integer.MAX_VALUE;
@@ -55,6 +57,9 @@ public class HeatDissipatorApp {
     // overwrite defaults with input arguments
     for (int i = 0; i < args.length; i += 2) {
       switch (args[i]) {
+        case "-f":
+          fileDir = args[i + 1];
+          break;
         case "-e":
           nrExecutorsPerNode = Integer.parseInt(args[i + 1]);
           break;
@@ -72,12 +77,17 @@ public class HeatDissipatorApp {
           break;
         default:
           throw new Error("Usage: java HeatDissipatorApp "
+              + " -f fileDir "
               + "[ -e <nrOfExecutors> ]"
               + "[ -d <minDelta> ]"
               + "[ -m <maxIteration> ]"
               + "[ -h <height> ]"
               + "[ -w <width> ]");
       }
+    }
+
+    if (Objects.isNull(fileDir)) {
+      throw new Error("File directory not specified!");
     }
 
     Constellation cons = activateContellation(nrExecutorsPerNode);
