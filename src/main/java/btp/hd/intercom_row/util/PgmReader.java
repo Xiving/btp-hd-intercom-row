@@ -12,7 +12,7 @@ public class PgmReader {
 
   public static double[][] getTempValues(String fileDir, int height, int width) {
     try {
-      return read(fileDir + "/" + TEMP, height, width, 100, 100);
+      return read(fileDir + TEMP, height, width, 100, 100);
     } catch (IOException e) {
       e.printStackTrace();
     }
