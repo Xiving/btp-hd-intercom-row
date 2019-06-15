@@ -146,7 +146,6 @@ public class StencilActivity extends Activity implements Serializable {
         TempResult result = slice.calcNextResult();
         log.debug("Result of stencil operation:\n{}", result.toString());
         slice.update(result);
-
         timer.stop(timing);
 
         log.info("Performed  a stencil operation of size {} x {} in {} ms, iteration: {}",
