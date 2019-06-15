@@ -36,7 +36,7 @@ public class HeatDissipatorApp {
       PrintStream out = new PrintStream("heat-dissipator.out");
 
       out.println("Performed intercom row heat dissipator sim");
-      out.println(String.format("Iterations: %d, min temp delta: %f", it, min));
+      out.println(String.format("Iterations: %d, max temp delta: %f", it, min));
       out.println(String.format("Dimensions: %d x %d, time: %f ms\n", h, w, ms));
       out.println(temp.toString());
       out.close();
@@ -161,7 +161,7 @@ public class HeatDissipatorApp {
 
       log.info("Done with stencil of size {} x {} after {} iteration(s) and {} ms", result.height(),
           result.width(), result.getIteration(), overallTimer.totalTimeVal() / 1000);
-      writeFile(result.getIteration(), minDifference, result.width(), result.height(),
+      writeFile(result.getIteration(), result.getMaxDelta(), result.width(), result.height(),
           overallTimer.totalTimeVal() / 1000, result);
     }
 

@@ -44,10 +44,9 @@ public class PgmReader {
     width = Integer.parseInt(dimensions.nextToken());
     br.readLine(); // ignore max heat
 
-    matrix = new double[height][width];
-
     int x = 0;
     int y = 0;
+    matrix = new double[height][width];
 
     do {
       StringTokenizer row = new StringTokenizer(br.readLine());
