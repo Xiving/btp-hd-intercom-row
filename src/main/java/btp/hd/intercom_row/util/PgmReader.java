@@ -2,7 +2,9 @@ package btp.hd.intercom_row.util;
 
 import java.io.*;
 import java.util.StringTokenizer;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PgmReader {
 
   private static final String TEMP = "plasma";
@@ -31,6 +33,8 @@ public class PgmReader {
   private static double[][] read(String fileDir, int height, int width) throws IOException {
     double[][] matrix;
     String fileName = String.format("%s_%dx%d.pgm", fileDir, height, width);
+
+    log.info("Reading file from dir: {}", fileDir);
 
     BufferedReader br = openBufferedReader(fileName);
     br.readLine(); // ignore "P2"?
