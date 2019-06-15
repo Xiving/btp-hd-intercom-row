@@ -53,7 +53,7 @@ public class PgmReader {
 
     private static BufferedReader openBufferedReader(String fileName) {
         try {
-            return new BufferedReader(getResourceReader(fileName));
+            return new BufferedReader(new FileReader(fileName));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -61,15 +61,15 @@ public class PgmReader {
         return null; // ignore
     }
 
-    private static Reader getResourceReader(String fileName) throws FileNotFoundException {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(fileName);
-
-        if (Objects.isNull(inputStream)) {
-            throw new FileNotFoundException(String.format("File '{}' not found", fileName));
-        }
-
-        return new InputStreamReader(inputStream);
-    }
+//    private static Reader getResourceReader(String fileName) throws FileNotFoundException {
+//        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+//        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+//
+//        if (Objects.isNull(inputStream)) {
+//            throw new FileNotFoundException(String.format("File '{}' not found", fileName));
+//        }
+//
+//        return new InputStreamReader(inputStream);
+//    }
 
 }
