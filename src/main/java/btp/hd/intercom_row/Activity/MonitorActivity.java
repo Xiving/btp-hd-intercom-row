@@ -30,6 +30,8 @@ public class MonitorActivity extends Activity implements Serializable {
     private int deltasReceived;
     private double maxDelta;
 
+    private boolean finished;
+
     public MonitorActivity(
         String host,
         int maxIterations,
@@ -44,6 +46,7 @@ public class MonitorActivity extends Activity implements Serializable {
         currentIteration = 0;
         deltasReceived = 0;
         maxDelta = Double.MAX_VALUE;
+        finished = false;
     }
 
     @Override
@@ -87,17 +90,21 @@ public class MonitorActivity extends Activity implements Serializable {
     }
 
     private int broadcastWhenNeeded(Constellation cons) {
-        if (maxDelta >= minDelta) {
+        if (!finished && maxDelta >= minDelta) {
             broadcastNextIteration(cons);
 
             if (currentIteration >= maxIterations) {
-                log.info("Maximum amount of iterations met!");
-                return FINISH;
+                finished = true;
             }
 
             deltasReceived = 0;
             maxDelta = 0;
         } else if (deltasReceived >= recipients.size()) {
+            if (finished) {
+                log.info("Maximum amount of iterations met!");
+                return FINISH;
+            }
+
             log.info("Max delta is below minimum!");
             return FINISH;
         }
