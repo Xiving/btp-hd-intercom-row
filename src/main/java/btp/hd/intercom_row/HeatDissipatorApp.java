@@ -11,6 +11,7 @@ import btp.hd.intercom_row.model.event.StartEvent;
 import btp.hd.intercom_row.util.HeatValueGenerator;
 import btp.hd.intercom_row.util.JobSubmission;
 import btp.hd.intercom_row.util.NodeInformation;
+import btp.hd.intercom_row.util.PgmReader;
 import ibis.constellation.*;
 import ibis.constellation.util.MultiEventCollector;
 import java.util.Objects;
@@ -109,7 +110,7 @@ public class HeatDissipatorApp {
 
       // Acquire heat info
       // todo: from file
-      CylinderSlice slice = createCylinder(height, width);
+      CylinderSlice slice = createCylinder(fileDir, height, width);
       List<String> nodes = JobSubmission.getNodes();
       MultiEventCollector mec = createCollector(nodes, nrExecutorsPerNode);
       ActivityIdentifier aid = cons.submit(mec);
@@ -207,26 +208,31 @@ public class HeatDissipatorApp {
     return cons;
   }
 
-  private static Constellation createOrContextConstellation(Context[] contexts) throws ConstellationCreationException {
+  private static Constellation createOrContextConstellation(Context[] contexts)
+      throws ConstellationCreationException {
     OrContext orContext = new OrContext(contexts);//contexts);
     ConstellationConfiguration config = new ConstellationConfiguration(orContext);
     return ConstellationFactory.createConstellation(config, contexts.length - 1);
   }
 
-  private static Constellation createVarArgConstellation(Context[] contexts) throws ConstellationCreationException {
+  private static Constellation createVarArgConstellation(Context[] contexts)
+      throws ConstellationCreationException {
     ConstellationConfiguration[] configs = Stream.of(contexts)
-            .map(ConstellationConfiguration::new)
-            .toArray(ConstellationConfiguration[]::new);
+        .map(ConstellationConfiguration::new)
+        .toArray(ConstellationConfiguration[]::new);
 
     return ConstellationFactory.createConstellation(configs);
   }
 
-  private static CylinderSlice createCylinder(int height, int width) {
+  private static CylinderSlice createCylinder(String fileDir, int height, int width) {
     HeatValueGenerator heatValueGenerator =
         new HeatValueGenerator(height, width, 0.0001, 100);
 
-    double[][] temp = heatValueGenerator.getTemp();
-    double[][] cond = heatValueGenerator.getCond();
+    double[][] temp = PgmReader.getTempValues(fileDir, height, width);
+    double[][] cond = PgmReader.getCondValues(fileDir, height, width);
+
+//    double[][] temp = heatValueGenerator.getTemp();
+//    double[][] cond = heatValueGenerator.getCond();
 
     return Cylinder.of(temp, cond).toSlice();
   }
@@ -243,7 +249,8 @@ public class HeatDissipatorApp {
       contexts[i] = stencilContext(node, i % nrExecutors);
     }
 
-    return new MultiEventCollector((contexts.length == 1)? contexts[0]: new OrContext(contexts), nodes.size() * nrExecutors);
+    return new MultiEventCollector((contexts.length == 1) ? contexts[0] : new OrContext(contexts),
+        nodes.size() * nrExecutors);
   }
 
   private static List<ActivityIdentifier> submitActivities(Constellation cons,

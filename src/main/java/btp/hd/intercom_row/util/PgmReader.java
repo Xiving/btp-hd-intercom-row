@@ -8,12 +8,12 @@ public class PgmReader {
     private static final String TEMP = "plasma";
     private static final String COND = "pat2";
 
-    public static double[][] getTempValues(int height, int width) {
-        return read(TEMP, height, width);
+    public static double[][] getTempValues(String fileDir, int height, int width) {
+        return read(fileDir + "/" + TEMP, height, width);
     }
 
-    public static double[][] getCondValues(int height, int width) {
-        return read(COND, height, width);
+    public static double[][] getCondValues(String fileDir, int height, int width) {
+        return read(fileDir + "/" + COND, height, width);
     }
 
     private static double[][] read(String fileDir, int height, int width) {
