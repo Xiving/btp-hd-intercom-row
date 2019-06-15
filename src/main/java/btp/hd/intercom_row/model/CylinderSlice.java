@@ -142,6 +142,8 @@ public class CylinderSlice extends HeatChunk implements Serializable {
         double w = getCond()[i][j] / getMaxCond();
         double restW = 1 - w;
 
+        log.info("W: {}, rest: {}", w, restW);
+
         return temp[i][j] * w +
             (temp[i - 1][j] + temp[i][j - 1] + temp[i][j + 1] + temp[i + 1][j]) * (restW
                 * DIRECT_CONST) +
