@@ -63,6 +63,7 @@ public class PgmReader {
       }
     } while (y < height);
 
+    log.info("Max value: {}", maxValue);
     return new PgmChunk(matrix, maxValue);
   }
 
