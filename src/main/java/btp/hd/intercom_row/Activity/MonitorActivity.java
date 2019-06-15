@@ -93,6 +93,7 @@ public class MonitorActivity extends Activity implements Serializable {
 
     private int broadcastWhenNeeded(Constellation cons) {
         if (!finished && maxDelta >= minDelta) {
+            log.info("{} (maxDelta) above {}", maxDelta, minDelta);
             broadcastNextIteration(cons);
 
             if (currentIteration >= maxIterations) {
