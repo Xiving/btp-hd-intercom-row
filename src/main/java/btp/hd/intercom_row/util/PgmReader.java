@@ -22,7 +22,7 @@ public class PgmReader {
 
   public static double[][] getCondValues(String fileDir, int height, int width) {
     try {
-      return read(fileDir + "/" + COND, height, width);
+      return read(fileDir + COND, height, width);
     } catch (IOException e) {
       e.printStackTrace();
     }
