@@ -39,6 +39,9 @@ public class StencilActivity extends Activity implements Serializable {
     private HashMap<Integer, TempRow> topRows;
     private HashMap<Integer, TempRow> botRows;
 
+    private Timer waitTimer;
+    private int timerId;
+
     public StencilActivity(
         ActivityIdentifier parent,
         String host,
@@ -78,6 +81,7 @@ public class StencilActivity extends Activity implements Serializable {
         if (o instanceof InitEvent) {
             InitEvent e = (InitEvent) o;
             init(e.getUpper(), e.getLower(), e.getMonitor());
+            startWaitTimer(cons);
             return SUSPEND;
         } else if (o instanceof TempRow) {
             TempRow row = (TempRow) o;
@@ -118,12 +122,14 @@ public class StencilActivity extends Activity implements Serializable {
         }
 
         if (slice.ready() && slice.getIteration() < calcUntilIndex) {
+            stopWaitTimer();
             calc(cons);
             sendUpdates(cons);
+            startWaitTimer(cons);
         }
 
         if (slice.getIteration() == calcUntilIndex && finished) {
-            log.info("Met stop condition!");
+            stopWaitTimer();
             return FINISH;
         }
 
@@ -168,5 +174,17 @@ public class StencilActivity extends Activity implements Serializable {
         if (!finished) {
             cons.send(new Event(identifier(), monitorActivity, new MonitorDelta(slice.getIteration(), slice.getMaxDelta())));
         }
+    }
+
+    private void startWaitTimer(Constellation cons) {
+        String executor = cons.identifier().toString();
+        waitTimer = cons.getTimer("java", executor, "waiting");
+        timerId = waitTimer.start();
+    }
+
+    private void stopWaitTimer() {
+        waitTimer.stop(timerId);
+        log.debug("Waited {} ms", waitTimer.totalTimeVal());
+        log.info("Met stop condition!");
     }
 }
