@@ -5,10 +5,12 @@ import lombok.Getter;
 
 @Getter
 public abstract class HeatChunk extends TempChunk implements Serializable {
+    private final double maxCond;
     private final double[][] cond;
 
-    public HeatChunk(double[][] temp, double[][] cond) {
+    public HeatChunk(double[][] temp, double[][] cond, double maxCond) {
         super(temp);
+        this.maxCond = maxCond;
 
         if (temp.length != cond.length || temp[0].length != cond[0].length) {
             throw new IllegalArgumentException("Dimension of temp and cond have to match");

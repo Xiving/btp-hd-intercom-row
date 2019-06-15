@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 public class Cylinder extends HeatChunk implements Serializable {
 
-    private Cylinder(double[][] temp, double[][] cond) {
-        super(temp, cond);
+    private Cylinder(double[][] temp, double[][] cond, double maxCond) {
+        super(temp, cond, maxCond);
     }
 
-    public static Cylinder of(double[][] temp, double[][] cond) {
+    public static Cylinder of(double[][] temp, double[][] cond, double maxCond) {
         int height = temp.length;
         int width = temp[0].length;
 
@@ -30,7 +30,7 @@ public class Cylinder extends HeatChunk implements Serializable {
             cylinderCond[i + 1][width + 1] = cond[i][1];
         }
 
-        return new Cylinder(cylinderTemp, cylinderCond);
+        return new Cylinder(cylinderTemp, cylinderCond, maxCond);
     }
 
     public CylinderSlice toSlice() {

@@ -21,8 +21,8 @@ public class CylinderSlice extends HeatChunk implements Serializable {
     private boolean topReady;
     private boolean botReady;
 
-    private CylinderSlice(int parentOffset, double[][] temp, double[][] cond) {
-        super(temp, cond);
+    private CylinderSlice(int parentOffset, double[][] temp, double[][] cond, double maxCond) {
+        super(temp, cond, maxCond);
         this.parentOffset = parentOffset;
 
         maxDelta = 0;
@@ -38,7 +38,7 @@ public class CylinderSlice extends HeatChunk implements Serializable {
     }
 
     public static CylinderSlice of(Cylinder parent) {
-        return new CylinderSlice(0, parent.getTemp(), parent.getCond());
+        return new CylinderSlice(0, parent.getTemp(), parent.getCond(), parent.getMaxCond());
     }
 
     public static CylinderSlice of(CylinderSlice parent, int begin, int end) {
@@ -58,7 +58,7 @@ public class CylinderSlice extends HeatChunk implements Serializable {
             }
         }
 
-        return new CylinderSlice(begin, temp, cond);
+        return new CylinderSlice(begin, temp, cond, parent.getMaxCond());
     }
 
     public TempResult calcNextResult() {
@@ -72,7 +72,7 @@ public class CylinderSlice extends HeatChunk implements Serializable {
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                result[i][j] = nextTemp(temp, cond, i + 1, j + 1);
+                result[i][j] = nextTemp(i + 1, j + 1);
                 maxDifference = Math.max(maxDifference, Math.abs(temp[i + 1][j + 1] - result[i][j]));
             }
         }
@@ -137,9 +137,10 @@ public class CylinderSlice extends HeatChunk implements Serializable {
         return new TempRow(iteration, getTemp()[height() - 2]);
     }
 
-    private static double nextTemp(double[][] temp, double[][] cond, int i, int j) {
-        double w = cond[i][j];
-        double restW = 1 - w;
+    private double nextTemp(int i, int j) {
+        double[][] temp = getTemp();
+        double w = getCond()[i][j];
+        double restW = getMaxCond() - w;
 
         return temp[i][j] * w +
             (temp[i - 1][j] + temp[i][j - 1] + temp[i][j + 1] + temp[i + 1][j]) * (restW

@@ -1,9 +1,13 @@
 package btp.hd.intercom_row;
 
+import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
+import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
+
 import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
 import btp.hd.intercom_row.model.Cylinder;
 import btp.hd.intercom_row.model.CylinderSlice;
+import btp.hd.intercom_row.model.PgmChunk;
 import btp.hd.intercom_row.model.TempChunk;
 import btp.hd.intercom_row.model.TempResult;
 import btp.hd.intercom_row.model.event.InitEvent;
@@ -12,21 +16,25 @@ import btp.hd.intercom_row.util.HeatValueGenerator;
 import btp.hd.intercom_row.util.JobSubmission;
 import btp.hd.intercom_row.util.NodeInformation;
 import btp.hd.intercom_row.util.PgmReader;
-import ibis.constellation.*;
+import ibis.constellation.ActivityIdentifier;
+import ibis.constellation.Constellation;
+import ibis.constellation.ConstellationConfiguration;
+import ibis.constellation.ConstellationCreationException;
+import ibis.constellation.ConstellationFactory;
+import ibis.constellation.Context;
+import ibis.constellation.Event;
+import ibis.constellation.NoSuitableExecutorException;
+import ibis.constellation.OrContext;
+import ibis.constellation.Timer;
 import ibis.constellation.util.MultiEventCollector;
-import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
-import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class HeatDissipatorApp {
@@ -228,13 +236,13 @@ public class HeatDissipatorApp {
     HeatValueGenerator heatValueGenerator =
         new HeatValueGenerator(height, width, 0.0001, 100);
 
-    double[][] temp = PgmReader.getTempValues(fileDir, height, width);
-    double[][] cond = PgmReader.getCondValues(fileDir, height, width);
+    PgmChunk temp = PgmReader.getTempValues(fileDir, height, width);
+    PgmChunk cond = PgmReader.getCondValues(fileDir, height, width);
 
 //    double[][] temp = heatValueGenerator.getTemp();
 //    double[][] cond = heatValueGenerator.getCond();
 
-    return Cylinder.of(temp, cond).toSlice();
+    return Cylinder.of(temp.getValues(), cond.getValues(), cond.getMaxValue()).toSlice();
   }
 
   private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
