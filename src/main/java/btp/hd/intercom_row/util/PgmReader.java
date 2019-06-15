@@ -45,18 +45,22 @@ public class PgmReader {
 
     matrix = new double[height][width];
 
-    try { // read values
-      for (int i = 0; i < height; i++) {
-        StringTokenizer row = new StringTokenizer(br.readLine());
+    int x = 0;
+    int y = 0;
 
-        for (int j = 0; j < width; j++) {
-          matrix[i][j] = Double.parseDouble(row.nextToken());
+    do {
+      StringTokenizer row = new StringTokenizer(br.readLine());
+
+      while (row.hasMoreTokens()) {
+        matrix[y][x] = Double.parseDouble(row.nextToken());
+        x++;
+
+        if (x == width) {
+          x = 0;
+          y++;
         }
       }
-    } catch (IOException e) {
-      System.err.println("Invalid double found!");
-      System.exit(1);
-    }
+    } while (y < height);
 
     return matrix;
   }
