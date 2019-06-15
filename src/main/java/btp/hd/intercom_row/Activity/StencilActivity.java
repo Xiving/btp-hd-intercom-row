@@ -70,6 +70,7 @@ public class StencilActivity extends Activity implements Serializable {
 
     @Override
     public int initialize(Constellation cons) {
+        startWaitTimer(cons);
         return SUSPEND;
     }
 
@@ -81,7 +82,6 @@ public class StencilActivity extends Activity implements Serializable {
         if (o instanceof InitEvent) {
             InitEvent e = (InitEvent) o;
             init(e.getUpper(), e.getLower(), e.getMonitor());
-            startWaitTimer(cons);
             return SUSPEND;
         } else if (o instanceof TempRow) {
             TempRow row = (TempRow) o;
