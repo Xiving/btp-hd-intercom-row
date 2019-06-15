@@ -7,7 +7,6 @@ import btp.hd.intercom_row.Activity.MonitorActivity;
 import btp.hd.intercom_row.Activity.StencilActivity;
 import btp.hd.intercom_row.model.Cylinder;
 import btp.hd.intercom_row.model.CylinderSlice;
-import btp.hd.intercom_row.model.PgmChunk;
 import btp.hd.intercom_row.model.TempChunk;
 import btp.hd.intercom_row.model.TempResult;
 import btp.hd.intercom_row.model.event.InitEvent;
@@ -236,13 +235,13 @@ public class HeatDissipatorApp {
     HeatValueGenerator heatValueGenerator =
         new HeatValueGenerator(height, width, 0.0001, 100);
 
-    PgmChunk temp = PgmReader.getTempValues(fileDir, height, width);
-    PgmChunk cond = PgmReader.getCondValues(fileDir, height, width);
+    double[][] temp = PgmReader.getTempValues(fileDir, height, width);
+    double[][] cond = PgmReader.getCondValues(fileDir, height, width);
 
 //    double[][] temp = heatValueGenerator.getTemp();
 //    double[][] cond = heatValueGenerator.getCond();
 
-    return Cylinder.of(temp.getValues(), cond.getValues(), cond.getMaxValue()).toSlice();
+    return Cylinder.of(temp, cond).toSlice();
   }
 
   private static MultiEventCollector createCollector(List<String> nodes, int nrExecutors) {
