@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CylinderSlice extends HeatChunk implements Serializable {
 
-    private static final double DIRECT_CONST = 0.25 * Math.sqrt(2) / (Math.sqrt(2) + 1.0);
-    private static final double DIAGONAL_CONST = 0.25 / (Math.sqrt(2) + 1.0);
+    private static final double DIRECT_CONST = Math.sqrt(2) / (Math.sqrt(2) + 1.0) / 4;
+    private static final double DIAGONAL_CONST = 1 / (Math.sqrt(2) + 1.0) / 4;
 
     private final int parentOffset;
 
@@ -141,11 +141,17 @@ public class CylinderSlice extends HeatChunk implements Serializable {
         double w = cond[i][j];
         double restW = 1 - w;
 
-        return temp[i][j] * w +
-            (temp[i - 1][j] + temp[i][j - 1] + temp[i][j + 1] + temp[i + 1][j]) * (restW
-                * DIRECT_CONST) +
-            (temp[i - 1][j - 1] + temp[i - 1][j + 1] + temp[i + 1][j - 1] + temp[i + 1][j + 1]) * (
-                restW * DIAGONAL_CONST);
+        return
+            // Current temperature
+            w * temp[i][j] +
+
+            // Direct neighbours
+            restW * DIRECT_CONST *
+                (temp[i - 1][j] + temp[i][j - 1] + temp[i][j + 1] + temp[i + 1][j]) +
+
+            // Diagonal neighbours
+            restW * DIAGONAL_CONST *
+                (temp[i - 1][j - 1] + temp[i - 1][j + 1] + temp[i + 1][j - 1] + temp[i + 1][j + 1]);
     }
 
     public boolean ready() {
