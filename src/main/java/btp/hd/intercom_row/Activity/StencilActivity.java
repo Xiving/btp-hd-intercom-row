@@ -106,6 +106,7 @@ public class StencilActivity extends Activity implements Serializable {
 
     @Override
     public void cleanup(Constellation cons) {
+        stopTimer();
         log.debug("Sending results to: {}", parent);
         cons.send(new Event(identifier(), parent, slice.getResult()));
     }
@@ -127,7 +128,6 @@ public class StencilActivity extends Activity implements Serializable {
         }
 
         if (slice.getIteration() == calcUntilIndex && finished) {
-            stopTimer();
             log.info("Met stop condition!");
             return FINISH;
         }
