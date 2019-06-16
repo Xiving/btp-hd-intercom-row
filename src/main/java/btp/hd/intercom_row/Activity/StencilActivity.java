@@ -142,10 +142,9 @@ public class StencilActivity extends Activity implements Serializable {
         Timer timer = cons.getTimer("java", executor, "stencil operation");
         int timing = timer.start();
 
-        log.debug("Performing stencil operation on:\n{}", slice.toString());
-        TempResult result = slice.calcNextResult();
-        log.debug("Result of stencil operation:\n{}", result.toString());
-        slice.update(result);
+        //log.debug("Performing stencil operation on:\n{}", slice.toString());
+        slice.nextIteration();
+        //log.debug("Result of stencil operation:\n{}", result.toString());
         timer.stop(timing);
 
         log.info("Performed  a stencil operation of size {} x {} in {} ms, iteration: {}",

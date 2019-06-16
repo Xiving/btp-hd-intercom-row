@@ -61,43 +61,40 @@ public class CylinderSlice extends HeatChunk implements Serializable {
         return new CylinderSlice(begin, temp, cond);
     }
 
-    public TempResult calcNextResult() {
+    public void nextIteration() {
         double maxDifference = 0;
-        double[][] temp = getTemp();
-        double[][] cond = getCond();
-
         double[][] result = new double[height()][width()];
 
         // calculate next temperatures
         for (int i = 1; i < height() - 1; i++) {
             for (int j = 1; j < width() - 1; j++) {
-                result[i][j] = nextTemp(temp, cond, i, j);
+                result[i][j] = nextTemp(i, j);
             }
         }
 
         // find maximum delta between old and new temperatures
         for (int i = 1; i < height() - 1; i++) {
             for (int j = 1; j < width() - 1; j++) {
-                maxDifference = Math.max(maxDifference, Math.abs(temp[i][j] - result[i][j]));
+                maxDifference = Math.max(maxDifference, Math.abs(getTemp()[i][j] - result[i][j]));
             }
         }
 
-        return TempResult.of(result, parentOffset, iteration + 1, maxDifference);
+        update(result, maxDifference);
     }
 
-    public void update(TempResult result) {
-        setTemp(result.getTemp());
+    public void update(double[][] nextTemperatures, double maxDelta) {
+        setTemp(nextTemperatures);
 
         for (int i = 1; i < height() - 1; i++) {
             getTemp()[i][0] = getTemp()[i][width() - 2];
             getTemp()[i][width() - 1] = getTemp()[i][1];
         }
 
-        iteration = result.getIteration();
-        maxDelta = result.getMaxDelta();
+        this.iteration++;
+        this.maxDelta = maxDelta;
 
-        topReady = false;
-        botReady = false;
+        this.topReady = false;
+        this.botReady = false;
     }
 
     public void updateTop(TempRow row) {
@@ -138,21 +135,25 @@ public class CylinderSlice extends HeatChunk implements Serializable {
         return new TempRow(iteration, getTemp()[height() - 2]);
     }
 
-    private static double nextTemp(double[][] temp, double[][] cond, int i, int j) {
-        double w = cond[i][j];
+    private double nextTemp(int i, int j) {
+        double w = getCond()[i][j];
         double restW = 1 - w;
 
         return
             // Current temperature
-            w * temp[i][j] +
-
+            w * getTemp()[i][j] +
             // Direct neighbours
-            restW * DIRECT_CONST *
-                (temp[i - 1][j] + temp[i][j - 1] + temp[i][j + 1] + temp[i + 1][j]) +
-
+            restW * DIRECT_CONST * getDirectTemps(i, j)+
             // Diagonal neighbours
-            restW * DIAGONAL_CONST *
-                (temp[i - 1][j - 1] + temp[i - 1][j + 1] + temp[i + 1][j - 1] + temp[i + 1][j + 1]);
+            restW * DIAGONAL_CONST * getDiagonalTemps(i, j);
+    }
+
+    private double getDirectTemps(int i, int j) {
+        return getTemp()[i - 1][j] + getTemp()[i][j - 1] + getTemp()[i][j + 1] + getTemp()[i + 1][j];
+    }
+
+    private double getDiagonalTemps(int i, int j) {
+        return getTemp()[i - 1][j - 1] + getTemp()[i - 1][j + 1] + getTemp()[i + 1][j - 1] + getTemp()[i + 1][j + 1];
     }
 
     public boolean ready() {
