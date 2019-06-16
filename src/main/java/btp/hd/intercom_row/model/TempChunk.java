@@ -1,11 +1,13 @@
 package btp.hd.intercom_row.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public abstract class TempChunk implements java.io.Serializable {
 
-    private final double[][] temp;
+    private double[][] temp;
 
     public int height() {
         return temp.length;

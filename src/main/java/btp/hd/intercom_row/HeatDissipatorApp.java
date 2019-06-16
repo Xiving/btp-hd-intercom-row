@@ -57,10 +57,10 @@ public class HeatDissipatorApp {
     // Default config
     String fileDir = null;
     int nrExecutorsPerNode = 1;
-    double minDifference = 10;
+    double minDifference = 0.1;
     int maxIterations = Integer.MAX_VALUE;
-    int height = 10;
-    int width = 10;
+    int height = 0;
+    int width = 0;
 
     // overwrite defaults with input arguments
     for (int i = 0; i < args.length; i += 2) {
@@ -94,8 +94,14 @@ public class HeatDissipatorApp {
       }
     }
 
-    if (Objects.isNull(fileDir)) {
-      throw new Error("File directory not specified!");
+    if (Objects.isNull(fileDir) || height < 1 || width < 1) {
+      throw new Error("Usage: java HeatDissipatorApp "
+          + " -f fileDir "
+          + "[ -e <nrOfExecutors> ]"
+          + "[ -d <minDelta> ]"
+          + "[ -m <maxIteration> ]"
+          + "[ -h <height> ]"
+          + "[ -w <width> ]");
     }
 
     Constellation cons = activateContellation(nrExecutorsPerNode);

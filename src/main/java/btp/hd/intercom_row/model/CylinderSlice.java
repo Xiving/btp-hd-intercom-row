@@ -63,17 +63,22 @@ public class CylinderSlice extends HeatChunk implements Serializable {
 
     public TempResult calcNextResult() {
         double maxDifference = 0;
-        int height = height() - 2;
-        int width = width() - 2;
         double[][] temp = getTemp();
         double[][] cond = getCond();
 
-        double[][] result = new double[height][width];
+        double[][] result = new double[height()][width()];
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                result[i][j] = nextTemp(temp, cond, i + 1, j + 1);
-                maxDifference = Math.max(maxDifference, Math.abs(temp[i + 1][j + 1] - result[i][j]));
+        // calculate next temperatures
+        for (int i = 1; i < height() - 1; i++) {
+            for (int j = 1; j < width() - 1; j++) {
+                result[i][j] = nextTemp(temp, cond, i, j);
+            }
+        }
+
+        // find maximum delta between old and new temperatures
+        for (int i = 1; i < height() - 1; i++) {
+            for (int j = 1; j < width() - 1; j++) {
+                maxDifference = Math.max(maxDifference, Math.abs(temp[i][j] - result[i][j]));
             }
         }
 
@@ -81,11 +86,7 @@ public class CylinderSlice extends HeatChunk implements Serializable {
     }
 
     public void update(TempResult result) {
-        for (int i = 0; i < result.height(); i++) {
-            for (int j = 0; j < result.width(); j++) {
-                getTemp()[i + 1][j + 1] = result.getTemp()[i][j];
-            }
-        }
+        setTemp(result.getTemp());
 
         for (int i = 1; i < height() - 1; i++) {
             getTemp()[i][0] = getTemp()[i][width() - 2];

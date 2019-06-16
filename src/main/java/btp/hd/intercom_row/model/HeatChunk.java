@@ -1,9 +1,9 @@
 package btp.hd.intercom_row.model;
 
 import java.io.Serializable;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public abstract class HeatChunk extends TempChunk implements Serializable {
     private final double[][] cond;
 
