@@ -3,7 +3,6 @@ package btp.hd.intercom_row.Activity;
 import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
 
 import btp.hd.intercom_row.model.CylinderSlice;
-import btp.hd.intercom_row.model.TempResult;
 import btp.hd.intercom_row.model.TempRow;
 import btp.hd.intercom_row.model.event.InitEvent;
 import btp.hd.intercom_row.model.event.MonitorDelta;
@@ -70,7 +69,7 @@ public class StencilActivity extends Activity implements Serializable {
 
     @Override
     public int initialize(Constellation cons) {
-        startWaitTimer(cons);
+        startTimer(cons, "Waiting");
         return SUSPEND;
     }
 
@@ -97,7 +96,6 @@ public class StencilActivity extends Activity implements Serializable {
             if (update.getStatus() == Status.FINISHED) {
                 calcUntilIndex = update.getIteration();
                 finished = true;
-                log.info("Received stop condition: iteration: {}", update.getIteration());
             } else {
                 calcUntilIndex = update.getIteration();
             }
@@ -122,14 +120,14 @@ public class StencilActivity extends Activity implements Serializable {
         }
 
         if (slice.ready() && slice.getIteration() < calcUntilIndex) {
-            stopWaitTimer();
+            stopTimer();
             calc(cons);
             sendUpdates(cons);
-            startWaitTimer(cons);
+            startTimer(cons, "Waiting");
         }
 
         if (slice.getIteration() == calcUntilIndex && finished) {
-            stopWaitTimer();
+            stopTimer();
             log.info("Met stop condition!");
             return FINISH;
         }
@@ -139,12 +137,11 @@ public class StencilActivity extends Activity implements Serializable {
 
     private void calc(Constellation cons) {
         String executor = cons.identifier().toString();
-        Timer timer = cons.getTimer("java", executor, "stencil operation");
-        int timing = timer.start();
+        Timer timer = cons.getTimer("java", executor, "Stencil operation");
 
-        //log.debug("Performing stencil operation on:\n{}", slice.toString());
+        // time the stencil operation
+        int timing = timer.start();
         slice.nextIteration();
-        //log.debug("Result of stencil operation:\n{}", result.toString());
         timer.stop(timing);
 
         log.info("Performed  a stencil operation of size {} x {} in {} ms, iteration: {}",
@@ -160,6 +157,8 @@ public class StencilActivity extends Activity implements Serializable {
     }
 
     private void sendUpdates(Constellation cons) {
+        startTimer(cons, "Send updates");
+
         if (Objects.nonNull(upperActivity)) {
             log.debug("Sending top row from: {} to: {}", identifier(), upperActivity);
             cons.send(new Event(identifier(), upperActivity, slice.getTop()));
@@ -173,15 +172,17 @@ public class StencilActivity extends Activity implements Serializable {
         if (!finished) {
             cons.send(new Event(identifier(), monitorActivity, new MonitorDelta(slice.getIteration(), slice.getMaxDelta())));
         }
+
+        stopTimer();
     }
 
-    private void startWaitTimer(Constellation cons) {
+    private void startTimer(Constellation cons, String id) {
         String executor = cons.identifier().toString();
-        waitTimer = cons.getTimer("java", executor, "waiting");
+        waitTimer = cons.getTimer("java", executor, id);
         timerId = waitTimer.start();
     }
 
-    private void stopWaitTimer() {
+    private void stopTimer() {
         waitTimer.stop(timerId);
         log.debug("Waited {} ms", waitTimer.totalTimeVal());
     }

@@ -11,6 +11,7 @@ import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
 import ibis.constellation.Context;
 import ibis.constellation.Event;
+import ibis.constellation.Timer;
 import java.io.Serializable;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -117,12 +118,19 @@ public class MonitorActivity extends Activity implements Serializable {
 
     private void broadcastNextIteration(Constellation cons) {
         currentIteration++;
+
+        String executor = cons.identifier().toString();
+        Timer timer = cons.getTimer("java", executor, "Monitor broadcast");
+        int timing = timer.start();
+
         recipients.forEach(
             r -> {
                 log.debug("Sending {} monitor update", r);
                 cons.send(new Event(identifier(), r, new MonitorUpdate(Status.CONTINUE, currentIteration)));
             }
         );
+
+        timer.stop(timing);
 
         log.info("Broadcast next iteration: {}", currentIteration);
     }
