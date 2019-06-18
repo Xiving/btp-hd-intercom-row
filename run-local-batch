@@ -1,9 +1,5 @@
 ./gradlew installDist
 
-./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 2
-./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 2
-./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@`-e 2
-
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 4
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 4
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 4
