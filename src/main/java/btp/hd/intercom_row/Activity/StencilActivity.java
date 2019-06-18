@@ -69,6 +69,7 @@ public class StencilActivity extends Activity implements Serializable {
 
     @Override
     public int initialize(Constellation cons) {
+        log.info("Initialized '{}' activity with id: {}", LABEL, identifier());
         startTimer(cons, "Waiting");
         return SUSPEND;
     }
