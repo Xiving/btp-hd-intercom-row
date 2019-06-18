@@ -124,7 +124,6 @@ public class HeatDissipatorApp {
       );
 
       // Acquire heat info
-      // todo: from file
       CylinderSlice slice = createCylinder(fileDir, height, width);
       List<String> nodes = JobSubmission.getNodes();
       log.info("Nodes: {}", nodes);
@@ -241,14 +240,8 @@ public class HeatDissipatorApp {
   }
 
   private static CylinderSlice createCylinder(String fileDir, int height, int width) {
-    HeatValueGenerator heatValueGenerator =
-        new HeatValueGenerator(height, width, 0.0001, 100);
-
     double[][] temp = PgmReader.getTempValues(fileDir, height, width);
     double[][] cond = PgmReader.getCondValues(fileDir, height, width);
-
-//    double[][] temp = heatValueGenerator.getTemp();
-//    double[][] cond = heatValueGenerator.getCond();
 
     return Cylinder.of(temp, cond).toSlice();
   }

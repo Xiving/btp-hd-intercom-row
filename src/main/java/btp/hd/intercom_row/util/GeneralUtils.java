@@ -13,6 +13,7 @@ public class GeneralUtils {
 
     public static Context stencilContext(String host, int executor) {
         String label = label(StencilActivity.LABEL, host, executor);
+        log.info("Created context: {}", label);
       return new Context(label);
     }
 
