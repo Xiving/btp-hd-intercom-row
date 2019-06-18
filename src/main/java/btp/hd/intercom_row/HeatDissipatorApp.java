@@ -277,7 +277,7 @@ public class HeatDissipatorApp {
     for (StencilActivity activity : activities) {
       ActivityIdentifier submittedActivity = cons.submit(activity);
       identifiers.add(submittedActivity);
-      log.debug("Submitted activity with id: {}", submittedActivity);
+      log.info("Submitted activity with id: {}", submittedActivity);
     }
 
     return identifiers;
