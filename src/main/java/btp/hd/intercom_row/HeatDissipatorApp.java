@@ -206,10 +206,10 @@ public class HeatDissipatorApp {
     Context[] contexts = new Context[nrExecutors + 1];
 
     IntStream.range(0, nrExecutors).forEach(
-        i -> contexts[i] = stencilContext(host, i)
+        i -> contexts[i + 1] = stencilContext(host, i)
     );
 
-    contexts[contexts.length - 1] = monitorContext(host);
+    contexts[0] = monitorContext(host);
 
     //Constellation cons = createOrContextConstellation(contexts); //nrExecutors);
     Constellation cons = createVarArgConstellation(contexts);
