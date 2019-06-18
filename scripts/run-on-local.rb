@@ -14,7 +14,7 @@ rest = ARGV[2..-1]
 classpath = `#{bin_dir}/create-class-path #{basedir}`.chomp
 port = ENV['CONSTELLATION_PORT']
 
-command = "#{bin_dir}/run-script-local -cp #{classpath}:$CLASSPATH -Xmx2G " +
+command = "#{bin_dir}/run-script-local -cp #{classpath}:$CLASSPATH -Xmx16G " +
     "-Dibis.server.address=localhost:#{port} " +
     "-Dibis.constellation.distributed=false " +
     "#{className} #{rest.join(" ")}\n"

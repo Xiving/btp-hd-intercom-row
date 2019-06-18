@@ -1,0 +1,21 @@
+./gradlew installDist
+
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 1
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 1
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 1
+
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 2
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 2
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@`-e 2
+
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 4
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 4
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 4
+
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 8
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 8
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 8
+
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 16
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 16
+./build/install/btp-hd-intercom-row/bin/heat-dissipator.local $@ -e 16
