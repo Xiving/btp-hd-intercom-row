@@ -211,8 +211,13 @@ public class HeatDissipatorApp {
 
     contexts[0] = monitorContext(host);
 
-    //Constellation cons = createOrContextConstellation(contexts); //nrExecutors);
-    Constellation cons = createVarArgConstellation(contexts);
+    Constellation cons;
+
+    if (contexts.length - 1 == nrExecutors) {
+      cons = createOrContextConstellation(contexts); //nrExecutors);
+    } else {
+      cons = createVarArgConstellation(contexts);
+    }
 
     if (!cons.activate()) {
       log.error("Constellation could not be activated!");
