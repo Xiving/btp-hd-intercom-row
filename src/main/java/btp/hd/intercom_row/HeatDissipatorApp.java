@@ -127,6 +127,7 @@ public class HeatDissipatorApp {
       // todo: from file
       CylinderSlice slice = createCylinder(fileDir, height, width);
       List<String> nodes = JobSubmission.getNodes();
+      log.info("Nodes: {}", nodes);
       MultiEventCollector mec = createCollector(nodes, nrExecutorsPerNode);
       ActivityIdentifier aid = cons.submit(mec);
 
