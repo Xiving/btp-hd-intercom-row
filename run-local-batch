@@ -3,3 +3,7 @@
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=1 $@ -e 4
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=1 $@ -e 4
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=1 $@ -e 4
+
+./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=16 $@ -e 4
+./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=16 $@ -e 4
+./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=16 $@ -e 4
