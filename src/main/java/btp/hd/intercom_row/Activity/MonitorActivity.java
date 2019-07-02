@@ -2,14 +2,13 @@ package btp.hd.intercom_row.Activity;
 
 import static btp.hd.intercom_row.util.GeneralUtils.monitorContext;
 
-import btp.hd.intercom_row.model.event.MonitorDelta;
+import btp.hd.intercom_row.model.event.DeltaUpdate;
 import btp.hd.intercom_row.model.event.MonitorUpdate;
 import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
 import btp.hd.intercom_row.model.event.StartEvent;
 import ibis.constellation.Activity;
 import ibis.constellation.ActivityIdentifier;
 import ibis.constellation.Constellation;
-import ibis.constellation.Context;
 import ibis.constellation.Event;
 import ibis.constellation.Timer;
 import java.io.Serializable;
@@ -68,7 +67,7 @@ public class MonitorActivity extends Activity implements Serializable {
             return SUSPEND;
         }
 
-        MonitorDelta delta = (MonitorDelta) event.getData();
+        DeltaUpdate delta = (DeltaUpdate) event.getData();
         log.debug("Received event: {}", delta);
 
         if (delta.getIteration() < currentIteration) {
@@ -105,10 +104,6 @@ public class MonitorActivity extends Activity implements Serializable {
             deltasReceived = 0;
             maxDelta = 0;
         } else if (deltasReceived >= recipients.size()) {
-            if (finished) {
-                return FINISH;
-            }
-
             log.info("Max delta is below minimum!");
             return FINISH;
         }

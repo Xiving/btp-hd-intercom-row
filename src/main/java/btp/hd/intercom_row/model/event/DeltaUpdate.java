@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class MonitorDelta implements Serializable {
+public class DeltaUpdate implements Serializable {
 
     private final int iteration;
     private final double delta;

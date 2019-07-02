@@ -5,7 +5,7 @@ import static btp.hd.intercom_row.util.GeneralUtils.stencilContext;
 import btp.hd.intercom_row.model.CylinderSlice;
 import btp.hd.intercom_row.model.TempRow;
 import btp.hd.intercom_row.model.event.InitEvent;
-import btp.hd.intercom_row.model.event.MonitorDelta;
+import btp.hd.intercom_row.model.event.DeltaUpdate;
 import btp.hd.intercom_row.model.event.MonitorUpdate;
 import btp.hd.intercom_row.model.event.MonitorUpdate.Status;
 import ibis.constellation.Activity;
@@ -171,7 +171,7 @@ public class StencilActivity extends Activity implements Serializable {
         }
 
         if (!finished) {
-            cons.send(new Event(identifier(), monitorActivity, new MonitorDelta(slice.getIteration(), slice.getMaxDelta())));
+            cons.send(new Event(identifier(), monitorActivity, new DeltaUpdate(slice.getIteration(), slice.getMaxDelta())));
         }
 
         stopTimer();
