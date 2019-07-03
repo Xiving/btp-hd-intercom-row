@@ -1,16 +1,16 @@
 ./gradlew installDist
 
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=1 $@ -e 4 -m 20
-mc -f gantt.data ./gantt/1/
+mv -f gantt.data ./gantt/1/
 
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=2 $@ -e 4 -m 20
-mc -f gantt.data ./gantt/2/
+mv -f gantt.data ./gantt/2/
 
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=4 $@ -e 4 -m 20
-mc -f gantt.data ./gantt/4/
+mv -f gantt.data ./gantt/4/
 
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=8 $@ -e 4 -m 20
-mc -f gantt.data ./gantt/8/
+mv -f gantt.data ./gantt/8/
 
 ./build/install/btp-hd-intercom-row/bin/heat-dissipator regular=16 $@ -e 4 -m 20
-mc -f gantt.data ./gantt/16/
+mv -f gantt.data ./gantt/16/
